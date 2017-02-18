@@ -7,8 +7,9 @@ const config_filename string = "config.json"
 // It is very likely that most request handler implementations will want to
 // have a reference to a copy of this.
 type Config struct {
-  BindAddress string
-  TemplateDir string
+  BindAddress string // The address and port to bind the server to.
+  TemplateDir string // The directory containing HTML page templates.
+  Database    string // The connection string for the database.
 }
 
 // MustLoad tries to load a configuration and panics if it cannot do so.
@@ -18,5 +19,6 @@ func MustLoad() Config {
   return Config {
     BindAddress: "127.0.0.1:3000",
     TemplateDir: "templates",
+    Database: "./miru.db",
   }
 }
