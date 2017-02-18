@@ -54,7 +54,7 @@ func NewMonitor(
 	runTimeSeconds := uint(math.Ceil(expectedRuntime.Seconds()))
 	return Monitor{
 		id:          -1,
-		createdBy:   creator.Id(),
+		createdBy:   creator.ID(),
 		interpreter: string(cmd),
 		scriptPath:  filePath,
 		createdAt:   time.Now(),

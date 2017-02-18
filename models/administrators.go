@@ -15,7 +15,7 @@ type Administrator struct {
 	loggedInAt   time.Time
 }
 
-// Id is a getter function for an Administrator's identifier.
-func (a Administrator) Id() int {
+// ID is a getter function for an Administrator's identifier.
+func (a Administrator) ID() int {
 	return a.id
 }
