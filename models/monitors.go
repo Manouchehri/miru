@@ -67,5 +67,23 @@ func NewMonitor(
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
-	return nil
+	_, err := db.Exec(QSaveMonitor,
+		m.interpreter, m.scriptPath, m.createdBy, m.createdAt,
+		m.lastRan, m.waitPeriod, m.timeToRun)
+	return err
+}
+
+// Update modifies the monitor's database row to set the time the monitor was
+// last run, the time we want to wait between running it, and the amount of
+// time to allow the monitor to run for.
+func (m *Monitor) Update(db *sql.DB) error {
+	_, err := db.Exec(QUpdateMonitor,
+		m.lastRan, m.waitPeriod, m.timeToRun)
+	return err
+}
+
+// Delete removes the monitor from the database.
+func (m *Monitor) Delete(db *sql.DB) error {
+	_, err := db.Exec(QDeleteMonitor, m.id)
+	return err
 }
