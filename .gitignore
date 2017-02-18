@@ -25,3 +25,6 @@ _testmain.go
 
 # Compiled binary
 miru
+
+# Database file
+miru.db

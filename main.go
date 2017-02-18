@@ -3,6 +3,7 @@ package main
 import (
   "./config"
   "./handlers"
+  "./models"
 
   "database/sql"
   "fmt"
@@ -18,6 +19,10 @@ func main() {
   db, dbErr := sql.Open("sqlite3", cfg.Database)
   if dbErr != nil {
     panic(dbErr)
+  }
+  initErr := models.InitializeTables(db)
+  if initErr != nil {
+    panic(initErr)
   }
 
   r := mux.NewRouter()
