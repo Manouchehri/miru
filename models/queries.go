@@ -1,5 +1,17 @@
 package models
 
+/// QInitAdministratorsTable is an SQL query that creates the administrators
+// table.
+const QInitAdministratorsTable = `
+create table if not exists administrators (
+  id integer primary key,
+  email_address varchar(64) unique not null,
+  password_hash varchar(255) not null,
+  last_login_ip varchar(45),
+  last_login_time timestamp
+);`
+
+// QInitMonitorsTable is an SQL query that creates the monitors table.
 const QInitMonitorsTable = `
 create table if not exists monitors (
   id integer primary key,
@@ -13,6 +25,7 @@ create table if not exists monitors (
   foreign key(created_by) references archivers(id)
 );`
 
+// QInitArchiversTable is an SQL query that creates the archivers table.
 const QInitArchiversTable = `
 create table if not exists archivers (
   id integer primary key,

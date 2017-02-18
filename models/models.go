@@ -14,6 +14,10 @@ func InitializeTables(db *sql.DB) error {
   if err != nil {
     return err
   }
+  _, err = db.Exec(QInitAdministratorsTable)
+  if err != nil {
+    return err
+  }
   _, err = db.Exec(QInitMonitorsTable)
   if err != nil {
     return err
