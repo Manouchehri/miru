@@ -1,19 +1,28 @@
 package handlers
 
 import (
+	"encoding/hex"
+	"io"
+	"os"
+
 	"../config"
 
 	"database/sql"
 	"fmt"
 	"html/template"
-	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"path"
+	"time"
 )
 
 // uploadPage is the name of the HTML template containing a monitor script
 // uploading form.
 const uploadPage string = "scriptupload.html"
+
+// filenameLength is the number of random bytes to get to generate names
+// for uploaded scripts with.
+const filenameLength int = 16
 
 // UploadScriptHandler implements net/http.ServeHTTP to handle new monitor
 // script uploads from administrators.
@@ -49,6 +58,9 @@ func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 }
 
 // ServeHTTP handles file uploads containing new monitor scripts.
+// Arguments:
+// res: Provided by the net/http server, used to write the response.
+// req: Provided by the net/http server, contains information about the request.
 func (h UploadScriptHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	parseErr := req.ParseForm()
@@ -64,19 +76,22 @@ func (h UploadScriptHandler) ServeHTTP(
 		return
 	}
 	defer file.Close()
-	content, readErr := ioutil.ReadAll(file)
-	if readErr != nil {
-		fmt.Printf("Error: %v\n", readErr)
+	toDisk, openErr := os.Create(generateUniqueFilename(h.cfg.ScriptDir))
+	if openErr != nil {
+		fmt.Printf("Error: %v\n", openErr)
 		InternalError(res, req)
 		return
 	}
-	fmt.Println("Read file")
-	fmt.Println(string(content))
+	defer toDisk.Close()
+	io.Copy(toDisk, file)
 	res.Write([]byte("hello world"))
 }
 
 // ServeHTTP serves a page that administrators can use to upload new
 // monitor scripts through.
+// Arguments:
+// res: Provided by the net/http server, used to write the response.
+// req: Provided by the net/http server, contains information about the request.
 func (h UploadPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, uploadPage))
@@ -85,4 +100,29 @@ func (h UploadPageHandler) ServeHTTP(
 		return
 	}
 	t.Execute(res, nil)
+}
+
+// generateUniqueFilename produces a filename that is guaranteed to be unique.
+// It continuously generates 16-byte script names, encoded as hex, until one
+// is created that isn't already taken.
+// Arguments:
+// scriptDir: The directory that monitor scripts are saved to.
+// Returns:
+// A filename that is guaranteed to be unique.
+func generateUniqueFilename(scriptDir string) string {
+	// We don't need cryptographically random names- pseudorandom will do.
+	rand.Seed(int64(time.Now().Unix()))
+	bytes := make([]byte, filenameLength)
+	for {
+		bytesRead, readErr := rand.Read(bytes)
+		for readErr != nil || bytesRead != filenameLength {
+			bytesRead, readErr = rand.Read(bytes)
+		}
+		filename := path.Join(scriptDir, hex.EncodeToString(bytes))
+		f, openErr := os.Open(filename)
+		if openErr != nil {
+			return filename
+		}
+		f.Close()
+	}
 }
