@@ -1,7 +1,7 @@
 package config
 
 // The name of the configuration file to look for.
-const config_filename string = "config.json"
+const configFilename string = "config.json"
 
 // Config contains global configuration information for the entire application.
 // It is very likely that most request handler implementations will want to
@@ -10,15 +10,17 @@ type Config struct {
 	BindAddress string // The address and port to bind the server to.
 	TemplateDir string // The directory containing HTML page templates.
 	Database    string // The connection string for the database.
+	ScriptDir   string // The directory to save monitor scripts to.
 }
 
 // MustLoad tries to load a configuration and panics if it cannot do so.
 // A `CONFIG_DIR` environment variable can be set to specify the directory
-// to read `config_filename` from.
+// to read `configFilename` from.
 func MustLoad() Config {
 	return Config{
 		BindAddress: "127.0.0.1:3000",
 		TemplateDir: "templates",
 		Database:    "./miru.db",
+		ScriptDir:   "monitorscripts",
 	}
 }
