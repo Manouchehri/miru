@@ -64,6 +64,17 @@ func NewMonitor(
 	}
 }
 
+// Interpreter is a getter function that converts the name of the monitor's
+// script type back into an Interpreter type.
+func (m Monitor) Interpreter() Interpreter {
+	return Interpreter(m.interpreter)
+}
+
+// ScriptPath is a getter function for the monitor's script path on disk.
+func (m Monitor) ScriptPath() string {
+	return m.scriptPath
+}
+
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
