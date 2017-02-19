@@ -28,3 +28,9 @@ miru
 
 # Database file
 miru.db
+
+# Test monitor scripts managed by test runner
+testerror.py
+testpython.py
+testruby.rb
+testperl.pl
