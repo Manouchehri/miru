@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/hex"
+	"errors"
 	"io"
 	"os"
 
@@ -63,9 +64,9 @@ func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 // req: Provided by the net/http server, contains information about the request.
 func (h UploadScriptHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
-	parseErr := req.ParseForm()
-	if parseErr != nil {
-		fmt.Printf("Error: %v\n", parseErr)
+	filetype := req.FormValue("filetype")
+	ext, ftErr := filetypeExtension(filetype)
+	if ftErr != nil {
 		BadRequest(res, req)
 		return
 	}
@@ -76,7 +77,7 @@ func (h UploadScriptHandler) ServeHTTP(
 		return
 	}
 	defer file.Close()
-	toDisk, openErr := os.Create(generateUniqueFilename(h.cfg.ScriptDir))
+	toDisk, openErr := os.Create(generateUniqueFilename(h.cfg.ScriptDir, ext))
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
 		InternalError(res, req)
@@ -107,9 +108,10 @@ func (h UploadPageHandler) ServeHTTP(
 // is created that isn't already taken.
 // Arguments:
 // scriptDir: The directory that monitor scripts are saved to.
+// ext: The filetype extension to append to the end of the filename.
 // Returns:
 // A filename that is guaranteed to be unique.
-func generateUniqueFilename(scriptDir string) string {
+func generateUniqueFilename(scriptDir string, ext string) string {
 	// We don't need cryptographically random names- pseudorandom will do.
 	rand.Seed(int64(time.Now().Unix()))
 	bytes := make([]byte, filenameLength)
@@ -121,8 +123,28 @@ func generateUniqueFilename(scriptDir string) string {
 		filename := path.Join(scriptDir, hex.EncodeToString(bytes))
 		f, openErr := os.Open(filename)
 		if openErr != nil {
-			return filename
+			return filename + "." + ext
 		}
 		f.Close()
+	}
+}
+
+// Converts a filetype, the values in the upload form's filetype dropdown
+// menu, into the file type's extension.
+// Arguments:
+// The filetype specified in the script upload form.
+// Returns:
+// The file type's extension if the file type is supported, and an error in
+// the case that the file type is not supported.
+func filetypeExtension(filetype string) (string, error) {
+	switch filetype {
+	case "python":
+		return "py", nil
+	case "ruby":
+		return "rb", nil
+	case "perl":
+		return "pl", nil
+	default:
+		return "", errors.New("unknown filetype")
 	}
 }
