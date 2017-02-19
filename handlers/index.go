@@ -9,7 +9,7 @@ import (
 )
 
 // The name of the index HTML template file to serve to users.
-const index_page string = "index.html"
+const indexPage string = "index.html"
 
 // IndexHandler implements http.ServeHTTP to load and serve a simple index
 // page to users.
@@ -31,7 +31,7 @@ func NewIndexHandler(cfg *config.Config) IndexHandler {
 // res: Provided by the net/http server.
 // req: Provided by the net/http server.
 func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	t, loadErr := template.ParseFiles(path.Join(h.cfg.TemplateDir, index_page))
+	t, loadErr := template.ParseFiles(path.Join(h.cfg.TemplateDir, indexPage))
 	if loadErr != nil {
 		InternalError(res, req)
 		return
