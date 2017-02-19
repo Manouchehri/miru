@@ -1,13 +1,14 @@
 package handlers
 
 import (
-	"net/http"
-	"path"
-
 	"../config"
 
 	"database/sql"
+	"fmt"
 	"html/template"
+	"io/ioutil"
+	"net/http"
+	"path"
 )
 
 // uploadPage is the name of the HTML template containing a monitor script
@@ -50,6 +51,27 @@ func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 // ServeHTTP handles file uploads containing new monitor scripts.
 func (h UploadScriptHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
+	parseErr := req.ParseForm()
+	if parseErr != nil {
+		fmt.Printf("Error: %v\n", parseErr)
+		BadRequest(res, req)
+		return
+	}
+	file, _, openErr := req.FormFile("script")
+	if openErr != nil {
+		fmt.Printf("Error: %v\n", openErr)
+		BadRequest(res, req)
+		return
+	}
+	defer file.Close()
+	content, readErr := ioutil.ReadAll(file)
+	if readErr != nil {
+		fmt.Printf("Error: %v\n", readErr)
+		InternalError(res, req)
+		return
+	}
+	fmt.Println("Read file")
+	fmt.Println(string(content))
 	res.Write([]byte("hello world"))
 }
 

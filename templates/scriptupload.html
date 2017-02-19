@@ -5,9 +5,13 @@
   </head>
   <body>
     <h1> Upload a new monitor script </h1>
-    <form method="POST" action="/monitor">
-      <input type="file" name="script" id="newscript" />
-      <input type="submit" value="Upload" id="uploadbutton" />
+    <form method="POST" action="/monitor" enctype="multipart/form-data">
+      <div>
+        <input type="file" name="script" id="newscript" />
+      </div>
+      <div>
+        <input type="submit" value="Upload" id="uploadbutton" />
+      </div>
     </form>
   </body>
 </html>
