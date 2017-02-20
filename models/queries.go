@@ -3,17 +3,6 @@ package models
 // QLastRowID is an SQL query that gets the ID of the last row created.
 const QLastRowID = `select last_insert_rowid();`
 
-/// QInitAdministratorsTable is an SQL query that creates the administrators
-// table.
-const QInitAdministratorsTable = `
-create table if not exists administrators (
-  id integer primary key,
-  email_address varchar(64) unique not null,
-  password_hash varchar(255) not null,
-  last_login_ip varchar(45),
-  last_login_time timestamp
-);`
-
 // QInitMonitorsTable is an SQL query that creates the monitors table.
 const QInitMonitorsTable = `
 create table if not exists monitors (
@@ -32,6 +21,7 @@ create table if not exists monitors (
 const QInitArchiversTable = `
 create table if not exists archivers (
   id integer primary key,
+  is_administrator bool default false,
   email_address varchar(64) unique not null,
   password_hash varchar(255) not null,
   last_login_ip varchar(45),
@@ -69,3 +59,7 @@ where
   ((select julianday('now')) - julianday(last_ran_at)) * (60 * 24)
   >= wait_period_minutes
 limit $1;`
+
+// QIsUserAnAdmin is an SQL query that checks if a given user has
+// administrator privileges, allowing them to create monitors.
+const QIsUserAnAdmin = `select is_administrator from archivers where id = $1;`

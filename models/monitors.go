@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 	"math"
 	"time"
 )
@@ -44,7 +45,7 @@ type Monitor struct {
 // Returns:
 // A new Monitor containing the provided data.
 func NewMonitor(
-	creator Administrator,
+	creator Archiver,
 	cmd Interpreter,
 	filePath string,
 	waitBetweenRuns time.Duration,
@@ -114,7 +115,12 @@ func (m *Monitor) SetLastRun() {
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
-	_, err := db.Exec(QSaveMonitor,
+	var isAdmin bool
+	err := db.QueryRow(QIsUserAnAdmin, m.createdBy).Scan(&isAdmin)
+	if err != nil || !isAdmin {
+		return errors.New("only administrators can create monitors")
+	}
+	_, err = db.Exec(QSaveMonitor,
 		m.interpreter, m.scriptPath, m.createdBy, m.createdAt,
 		m.lastRan, m.waitPeriod, m.timeToRun)
 	if err != nil {

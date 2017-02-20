@@ -93,7 +93,7 @@ func (h UploadScriptHandler) ServeHTTP(
 	io.Copy(toDisk, file)
 	// Create a new Monitor in the database.
 	monitor := models.NewMonitor(
-		models.Administrator{},
+		models.Archiver{},
 		models.Interpreter(filetype),
 		filename,
 		time.Duration(waitPeriod)*time.Minute,

@@ -57,7 +57,7 @@ func TestMain(m *testing.M) {
 func TestRunPython(t *testing.T) {
 	t.Log("Running python script")
 	monitor := models.NewMonitor(
-		models.Administrator{}, models.PythonInterpreter, "testpython.py", 0, 0)
+		models.Archiver{}, models.PythonInterpreter, "testpython.py", 0, 0)
 	resultOut := make(chan Result, 1)
 	errorOut := make(chan error, 1)
 	RunMonitorScript(monitor, resultOut, errorOut)
@@ -78,7 +78,7 @@ func TestRunPython(t *testing.T) {
 func TestRunRuby(t *testing.T) {
 	t.Log("Running Ruby script")
 	monitor := models.NewMonitor(
-		models.Administrator{}, models.RubyInterpreter, "testruby.rb", 0, 0)
+		models.Archiver{}, models.RubyInterpreter, "testruby.rb", 0, 0)
 	resultOut := make(chan Result, 1)
 	errorOut := make(chan error, 1)
 	RunMonitorScript(monitor, resultOut, errorOut)
@@ -98,7 +98,7 @@ func TestRunRuby(t *testing.T) {
 
 func TestRunPerl(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Administrator{}, models.PerlInterpreter, "testperl.pl", 0, 0)
+		models.Archiver{}, models.PerlInterpreter, "testperl.pl", 0, 0)
 	resultOut := make(chan Result, 1)
 	errorOut := make(chan error, 1)
 	RunMonitorScript(monitor, resultOut, errorOut)
@@ -118,7 +118,7 @@ func TestRunPerl(t *testing.T) {
 
 func TestRunUnknownFails(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Administrator{}, models.Interpreter("unknown"), "testunknown", 0, 0)
+		models.Archiver{}, models.Interpreter("unknown"), "testunknown", 0, 0)
 	resultOut := make(chan Result, 1)
 	errorOut := make(chan error, 1)
 	RunMonitorScript(monitor, resultOut, errorOut)
@@ -136,7 +136,7 @@ func TestRunUnknownFails(t *testing.T) {
 
 func TestRunFailProducesError(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Administrator{}, models.PythonInterpreter, "testerror.py", 0, 0)
+		models.Archiver{}, models.PythonInterpreter, "testerror.py", 0, 0)
 	resultOut := make(chan Result, 1)
 	errorOut := make(chan error, 1)
 	RunMonitorScript(monitor, resultOut, errorOut)
