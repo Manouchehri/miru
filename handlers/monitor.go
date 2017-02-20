@@ -43,6 +43,8 @@ type UploadPageHandler struct {
 // Arguments:
 // c: A reference to the application's global configuration.
 // db: A reference to a database connection.
+// Returns:
+// A new UploadScriptHandler that can be bound to a router.
 func NewUploadScriptHandler(c *config.Config, db *sql.DB) UploadScriptHandler {
 	return UploadScriptHandler{
 		cfg: c,
@@ -53,6 +55,8 @@ func NewUploadScriptHandler(c *config.Config, db *sql.DB) UploadScriptHandler {
 // NewUploadPageHandler is the constructor function for UploadPageHandler.
 // Arguments:
 // cfg: A reference to the application's global configuration.
+// Returns:
+// A new UploadPageHandler that can be bound to a router.
 func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 	return UploadPageHandler{
 		cfg: cfg,
