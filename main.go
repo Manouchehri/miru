@@ -60,9 +60,13 @@ func main() {
 	index := handlers.NewIndexHandler(&cfg)
 	monitorPage := handlers.NewUploadPageHandler(&cfg)
 	uploadScript := handlers.NewUploadScriptHandler(&cfg, db)
+	registerPage := handlers.NewRegisterPageHandler(&cfg)
+	register := handlers.NewRegisterHandler(&cfg, db)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
+	r.Handle("/register", registerPage).Methods("GET")
+	r.Handle("/register", register).Methods("POST")
 
 	http.Handle("/", r)
 	fmt.Println("Listening on", cfg.BindAddress)
