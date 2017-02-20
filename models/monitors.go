@@ -64,6 +64,37 @@ func NewMonitor(
 	}
 }
 
+// FindReadyMonitors finds monitors that we've waited long enough to run again.
+// The function will return the first error it encounters, along with any
+// monitors retrieved until that point.
+// Arguments:
+// db: A database connection.
+// limit: The maximum number of monitors to fetch.
+// Returns:
+// An array of monitors that can be run, and the first error if one occurs.
+func FindReadyMonitors(db *sql.DB, limit uint) ([]Monitor, error) {
+	allMonitors := make([]Monitor, limit)
+	monitorsFound := 0
+	rows, err := db.Query(QFindReadyMonitors, limit)
+	if err != nil {
+		return []Monitor{}, err
+	}
+	for rows.Next() {
+		var m Monitor
+		err = rows.Scan(
+			&m.id, &m.interpreter, &m.scriptPath, &m.createdBy,
+			&m.createdAt, &m.lastRan, &m.waitPeriod, &m.timeToRun)
+		if err != nil {
+			break
+		}
+		allMonitors[monitorsFound] = m
+		monitorsFound++
+	}
+	shrunkArray := []Monitor{}
+	shrunkArray = append(shrunkArray, allMonitors[:monitorsFound]...)
+	return shrunkArray, err
+}
+
 // Interpreter is a getter function that converts the name of the monitor's
 // script type back into an Interpreter type.
 func (m Monitor) Interpreter() Interpreter {
@@ -84,7 +115,7 @@ func (m *Monitor) Save(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	err := db.QueryRow(QLastRowID).Scan(&m.id)
+	err = db.QueryRow(QLastRowID).Scan(&m.id)
 	return err
 }
 

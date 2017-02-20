@@ -56,6 +56,17 @@ func main() {
 		}
 	}()
 
+	// XXX - Remove me
+	mon := models.NewMonitor(
+		models.Administrator{}, models.PythonInterpreter,
+		"monitorscripts/hello.py", 1*time.Minute, 1*time.Second)
+	err := mon.Save(db)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Saved monitor", mon)
+	// XXX - Remove me
+
 	r := mux.NewRouter()
 	index := handlers.NewIndexHandler(&cfg)
 	monitorPage := handlers.NewUploadPageHandler(&cfg)

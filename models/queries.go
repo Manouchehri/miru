@@ -41,7 +41,7 @@ create table if not exists archivers (
 // QSaveMonitor is an SQL query that saves a new monitor.
 const QSaveMonitor = `
 insert into monitors (
-  interpreter, script_location, created_by, created_at
+  interpreter, script_location, created_by, created_at,
   last_ran_at, wait_period_minutes, expected_run_time
 ) values ($1, $2, $3, $4, $5, $6, $7);`
 
@@ -57,3 +57,15 @@ where id = $4;`
 
 // QDeleteMonitor is an SQL query that deletes a monitor.
 const QDeleteMonitor = `delete from monitors where id = $1;`
+
+// QFindReadyMonitors is an SQL query that retrieves monitors whose wait period
+// between runs has expired.
+const QFindReadyMonitors = `
+select
+  id, interpreter, script_location, created_by, created_at,
+  last_ran_at, wait_period_minutes, expected_run_time
+from monitors
+where
+  ((select julianday('now')) - julianday(last_ran_at)) * (60 * 24)
+  >= wait_period_minutes
+limit $1;`

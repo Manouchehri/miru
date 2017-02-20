@@ -1,6 +1,8 @@
 package tasks
 
 import (
+	"../models"
+
 	"database/sql"
 	"fmt"
 	"time"
@@ -17,13 +19,26 @@ import (
 func RunMonitors(
 	db *sql.DB, sleepPeriod time.Duration,
 	errors chan<- error, terminate <-chan bool) {
-	for {
+	results := make(chan Result)
+	terminated := false
+	for !terminated {
 		select {
 		case <-time.After(sleepPeriod):
-			fmt.Println("Look for and run a task")
+			fmt.Println("Looking for a ready monitor")
+			monitors, err := models.FindReadyMonitors(db, 1)
+			if err != nil {
+				errors <- err
+			}
+			for _, monitor := range monitors {
+				fmt.Println("+++ Found monitor", monitor)
+				go RunMonitorScript(monitor, results, errors)
+			}
+		case result := <-results:
+			fmt.Println("Got result", result)
 		case <-terminate:
-			break
+			terminated = true
 		}
 	}
 	close(errors)
+	close(results)
 }

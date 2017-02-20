@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"../models"
@@ -40,15 +41,17 @@ func RunMonitorScript(
 		err <- errors.New("unknown interpreter type")
 		return
 	}
-	pipeIn, pipeOut := io.Pipe()
+	fmt.Println("Determined need to run interpreter", cmdName)
 	// We have to run the command in another goroutine because the input part
 	// of the pipe has to have started reading by the time the output part
 	// starts writing, or else we get a deadlock.
+	pipeIn, pipeOut := io.Pipe()
 	go func() {
 		defer pipeOut.Close()
 		cmd := exec.Command(cmdName, monitor.ScriptPath())
 		cmd.Stdout = pipeOut
 		cmd.Stderr = os.Stderr
+		fmt.Println("Running script")
 		startErr := cmd.Run()
 		if startErr != nil {
 			err <- startErr
@@ -57,6 +60,7 @@ func RunMonitorScript(
 	// Decode the input into a Result struct or else produce an error.
 	decoder := json.NewDecoder(pipeIn)
 	data := Result{}
+	fmt.Println("decoding result")
 	decodeErr := decoder.Decode(&data)
 	if decodeErr != nil {
 		err <- decodeErr
