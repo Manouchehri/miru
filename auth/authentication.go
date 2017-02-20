@@ -3,10 +3,7 @@ package auth
 import (
 	"errors"
 
-	"../models"
-
 	"crypto/rand"
-	"database/sql"
 	"encoding/hex"
 	"time"
 )
@@ -23,31 +20,34 @@ const maxGenerateTokenAttempts uint = 5
 // from being exhausted.
 const generateAttemptWait time.Duration = 50 * time.Millisecond
 
+// CheckFn is a type alias for a function that accepts a token string and
+// determines whether the token is already taken.
+type CheckFn func(string) bool
+
 // GenerateUniqueSessionToken tries to read random bytes to produce a new
 // session token and then checks whether the token is already in use.
 // The function will attempt to check the database maxGenerateTokenAttempts
 // times before producing an error.
 // Arguments:
-// db: A database connection.
 // length: The number of random bytes to use for the token.
+// taken: A CheckFn that can be used to determine if a token is taken.
 // Returns:
 // A unique session token if one is generated and not in use, else an error
 // if checking the database for the uniqueness of a token fails too many times.
-func GenerateUniqueSessionToken(db *sql.DB, length uint) (string, error) {
+func GenerateUniqueSessionToken(length uint, taken CheckFn) (string, error) {
 	buffer := make([]byte, length)
 	readBytes, genErr := rand.Read(buffer)
-	attempts := 0
+	var attempts uint = 0
 	done := false
 	token := ""
 	for !done && attempts < maxGenerateTokenAttempts {
-		for readBytes != length || genErr != nil {
+		for readBytes != int(length) || genErr != nil {
 			<-time.After(generateAttemptWait)
 			readBytes, genErr = rand.Read(buffer)
 		}
 		token = hex.EncodeToString(buffer)
-		session, genErr = models.FindSession(db, token)
 		attempts++
-		done = session.ID() == ""
+		done = taken(token)
 	}
 	if attempts >= maxGenerateTokenAttempts {
 		return "", errors.New("could not test for token uniqueness")

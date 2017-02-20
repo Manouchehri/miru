@@ -77,18 +77,19 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	password := req.FormValue("password")
 	passwordRepeated := req.FormValue("passrepeat")
 
-	if !auth.DoPasswordsMatch(password, passwordRepeated) {
+	if password != passwordRepeated {
 		fmt.Println("Passwords don't match")
 		BadRequest(res, req)
 		return
 	}
-	if auth.IsEmailAddressTaken(h.db, email) {
+	archiver, _ := models.FindArchiverByEmail(h.db, email)
+	if archiver.Email() != "" {
 		fmt.Println("Email address taken")
 		BadRequest(res, req)
 		return
 	}
 	passwordHash := auth.SecurePassword(password)
-	archiver := models.NewArchiver(email, passwordHash)
+	archiver = models.NewArchiver(email, passwordHash)
 	saveErr := archiver.Save(h.db)
 	if saveErr != nil {
 		fmt.Println("Failed to save new archiver", saveErr)

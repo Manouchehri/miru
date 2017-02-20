@@ -2,7 +2,6 @@ package models
 
 import (
 	"../auth"
-	"../models"
 
 	"database/sql"
 	"errors"
@@ -37,7 +36,7 @@ type Session struct {
 // Returns:
 // A new Session, which, when saved, will have a token generated for it and
 // then be safe to store in a secure cookie.
-func NewSession(owner models.Archiver, ipAddr string) Session {
+func NewSession(owner Archiver, ipAddr string) Session {
 	return Session{
 		id:        "",
 		owner:     owner.ID(),
@@ -70,7 +69,12 @@ func FindSession(db *sql.DB, id string) (Session, error) {
 // Returns:
 // An error if one occurs trying to generate a token or save the session.
 func (s *Session) Save(db *sql.DB) error {
-	token, genErr := auth.GenerateUniqueSessionToken(db, sessionTokenLength)
+	token, genErr := auth.GenerateUniqueSessionToken(
+		sessionTokenLength,
+		func(generatedToken string) bool {
+			session, _ := FindSession(db, generatedToken)
+			return session.ID() != ""
+		})
 	if genErr != nil {
 		return genErr
 	}
@@ -81,6 +85,13 @@ func (s *Session) Save(db *sql.DB) error {
 		s.id = ""
 	}
 	return err
+}
+
+// ID is a getter function that gets the session's id/token.
+// Returns:
+// The session's random token string.
+func (s Session) ID() string {
+	return s.id
 }
 
 // Update always produces an error.

@@ -18,7 +18,7 @@ func InitializeTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	_, err := db.Exec(QInitSessionsTable)
+	_, err = db.Exec(QInitSessionsTable)
 	if err != nil {
 		return err
 	}
