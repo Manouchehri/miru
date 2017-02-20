@@ -21,6 +21,7 @@ create table if not exists monitors (
 const QInitArchiversTable = `
 create table if not exists archivers (
   id integer primary key,
+  made_admin_by integer,
   is_administrator bool default false,
   email_address varchar(64) unique not null,
   password_hash varchar(255) not null,
@@ -63,3 +64,24 @@ limit $1;`
 // QIsUserAnAdmin is an SQL query that checks if a given user has
 // administrator privileges, allowing them to create monitors.
 const QIsUserAnAdmin = `select is_administrator from archivers where id = $1;`
+
+// QSaveArchiver is an SQL query that creates a new archiver account.
+const QSaveArchiver = `
+insert into archivers (
+  made_admin_by, is_administrator, email_address,
+  password_hash, last_login_ip, last_login_time
+) values ($1, $2, $3, $4, $5, $6);`
+
+// QUpdateArchiver is an SQL query that updates an existing archiver account.
+const QUpdateArchiver = `
+update archivers set
+  made_admin_by = $1,
+  is_administrator = $2,
+  email_address = $3,
+  password_hash = $4,
+  last_login_ip = $5,
+  last_login_time = $6
+where id = $7;`
+
+// QDeleteArchiver is an SQL query that deletes a user account entirely.
+const QDeleteArchiver = `delete from archivers where id = $1;`
