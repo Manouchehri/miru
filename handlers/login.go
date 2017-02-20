@@ -3,6 +3,7 @@ package handlers
 import (
 	"../config"
 
+	"database/sql"
 	"html/template"
 	"net/http"
 	"path"
@@ -16,6 +17,12 @@ type LoginPageHandler struct {
 	cfg *config.Config
 }
 
+// LoginHandler implements net/http.ServeHTTP to handle archiver logins.
+type LoginHandler struct {
+	cfg *config.Config
+	db  *sql.DB
+}
+
 // NewLoginPageHandler is the constructor function for a LoginPageHandler.
 // Arguments:
 // cfg: The application's global configuration.
@@ -24,6 +31,19 @@ type LoginPageHandler struct {
 func NewLoginPageHandler(cfg *config.Config) LoginPageHandler {
 	return LoginPageHandler{
 		cfg: cfg,
+	}
+}
+
+// NewLoginHandler is the constructor function for a LoginHandler.
+// Arguments:
+// cfg: The application's global configuration.
+// db: A database connection.
+// Returns:
+// A new LoginHandler, which can be bound to a router.
+func NewLoginHandler(cfg *config.Config, db *sql.DB) LoginHandler {
+	return LoginHandler{
+		cfg: cfg,
+		db:  db,
 	}
 }
 
@@ -39,4 +59,13 @@ func (h LoginPageHandler) ServeHTTP(
 		return
 	}
 	t.Execute(res, nil)
+}
+
+// ServeHTTP handles a login form POST request from the user and attempts to
+// establish a new session for them if the supplied credentials are correct.
+// Arguments:
+// res: Provided by the net/http server, used to write the response.
+// req: Provided by the net/http server, contains information about the request.
+func (h LoginHandler) ServeHTTP(
+	res http.ResponseWriter, req *http.Request) {
 }
