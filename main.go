@@ -32,7 +32,7 @@ func main() {
 	// to check for changes to sites, and shut everything down if a terminate
 	// signal is sent by the user.
 	errors := make(chan error)
-	terminate := make(chan bool, 1)
+	terminate := make(chan bool, 2)
 	go tasks.RunMonitors(db, 1*time.Second, errors, terminate)
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Kill)
@@ -62,11 +62,13 @@ func main() {
 	uploadScript := handlers.NewUploadScriptHandler(&cfg, db)
 	registerPage := handlers.NewRegisterPageHandler(&cfg)
 	register := handlers.NewRegisterHandler(&cfg, db)
+	loginPage := handlers.NewLoginPageHandler(&cfg)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
 	r.Handle("/register", registerPage).Methods("GET")
 	r.Handle("/register", register).Methods("POST")
+	r.Handle("/login", loginPage).Methods("GET")
 
 	http.Handle("/", r)
 	fmt.Println("Listening on", cfg.BindAddress)
