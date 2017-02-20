@@ -1,5 +1,8 @@
 package models
 
+// QLastRowID is an SQL query that gets the ID of the last row created.
+const QLastRowID = `select last_insert_rowid();`
+
 /// QInitAdministratorsTable is an SQL query that creates the administrators
 // table.
 const QInitAdministratorsTable = `

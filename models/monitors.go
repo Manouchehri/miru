@@ -81,6 +81,10 @@ func (m *Monitor) Save(db *sql.DB) error {
 	_, err := db.Exec(QSaveMonitor,
 		m.interpreter, m.scriptPath, m.createdBy, m.createdAt,
 		m.lastRan, m.waitPeriod, m.timeToRun)
+	if err != nil {
+		return err
+	}
+	err := db.QueryRow(QLastRowID).Scan(&m.id)
 	return err
 }
 
