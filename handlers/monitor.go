@@ -1,19 +1,20 @@
 package handlers
 
 import (
-	"encoding/hex"
-	"errors"
-	"io"
-	"os"
-
 	"../config"
+	"../models"
 
 	"database/sql"
+	"encoding/hex"
+	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"math/rand"
 	"net/http"
+	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -64,9 +65,12 @@ func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 // req: Provided by the net/http server, contains information about the request.
 func (h UploadScriptHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
+	// Extract inputs from the form.
+	waitPeriod, parseErr1 := strconv.Atoi(req.FormValue("waitPeriod"))
+	expectedRuntime, parseErr2 := strconv.Atoi(req.FormValue("expectedRuntime"))
 	filetype := req.FormValue("filetype")
 	ext, ftErr := filetypeExtension(filetype)
-	if ftErr != nil {
+	if ftErr != nil || parseErr1 != nil || parseErr2 != nil {
 		BadRequest(res, req)
 		return
 	}
@@ -77,6 +81,7 @@ func (h UploadScriptHandler) ServeHTTP(
 		return
 	}
 	defer file.Close()
+	// Find a place to save the file to on disk.
 	filename := generateUniqueFilename(h.cfg.ScriptDir, ext)
 	toDisk, openErr := os.Create(filename)
 	if openErr != nil {
@@ -86,7 +91,19 @@ func (h UploadScriptHandler) ServeHTTP(
 	}
 	defer toDisk.Close()
 	io.Copy(toDisk, file)
-	res.Write([]byte("hello world"))
+	// Create a new Monitor in the database.
+	monitor := models.NewMonitor(
+		models.Administrator{},
+		models.Interpreter(filetype),
+		filename,
+		time.Duration(waitPeriod)*time.Minute,
+		time.Duration(expectedRuntime)*time.Second)
+	saveErr := monitor.Save(h.db)
+	if saveErr != nil {
+		InternalError(res, req)
+		return
+	}
+	res.Write([]byte("success"))
 }
 
 // ServeHTTP serves a page that administrators can use to upload new
