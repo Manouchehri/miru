@@ -106,6 +106,11 @@ func (m Monitor) ScriptPath() string {
 	return m.scriptPath
 }
 
+// SetLastRun sets the monitor's last run time to now.
+func (m *Monitor) SetLastRun() {
+	m.lastRan = time.Now()
+}
+
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
@@ -124,7 +129,7 @@ func (m *Monitor) Save(db *sql.DB) error {
 // time to allow the monitor to run for.
 func (m *Monitor) Update(db *sql.DB) error {
 	_, err := db.Exec(QUpdateMonitor,
-		m.lastRan, m.waitPeriod, m.timeToRun)
+		m.lastRan, m.waitPeriod, m.timeToRun, m.id)
 	return err
 }
 

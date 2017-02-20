@@ -31,6 +31,11 @@ func RunMonitors(
 			}
 			for _, monitor := range monitors {
 				fmt.Println("+++ Found monitor", monitor)
+				monitor.SetLastRun()
+				updateErr := monitor.Update(db)
+				if updateErr != nil {
+					errors <- updateErr
+				}
 				go RunMonitorScript(monitor, results, errors)
 			}
 		case result := <-results:
