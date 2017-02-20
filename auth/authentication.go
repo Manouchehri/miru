@@ -6,7 +6,13 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"time"
+
+	auth "github.com/StratumSecurity/scryptauth"
 )
+
+// SessionCookieName is the name of the cookie to store in the user's
+// browser to identify their authenticated session with.
+const SessionCookieName string = "miru-session"
 
 // maxGenerateTokenAttempts is the maximum number of times to attempt to
 // generate a unique session token.  If GenerateUniqueSessionToken fails to
@@ -37,7 +43,7 @@ type CheckFn func(string) bool
 func GenerateUniqueSessionToken(length uint, taken CheckFn) (string, error) {
 	buffer := make([]byte, length)
 	readBytes, genErr := rand.Read(buffer)
-	var attempts uint = 0
+	var attempts uint
 	done := false
 	token := ""
 	for !done && attempts < maxGenerateTokenAttempts {
@@ -47,10 +53,21 @@ func GenerateUniqueSessionToken(length uint, taken CheckFn) (string, error) {
 		}
 		token = hex.EncodeToString(buffer)
 		attempts++
-		done = taken(token)
+		done = !taken(token)
 	}
 	if attempts >= maxGenerateTokenAttempts {
 		return "", errors.New("could not test for token uniqueness")
 	}
 	return token, nil
+}
+
+// IsPasswordCorrect determines whether a provided password matches a stored,
+// securely hashed password.
+// Arguments:
+// provided: A password provided by the user to login with.
+// stored: The password hash belonging to the archiver attempting to log in.
+// Returns:
+// True if the credentials are correct, else false.
+func IsPasswordCorrect(provided, stored string) bool {
+	return auth.CompareHashAndPassword([]byte(stored), []byte(provided)) == nil
 }

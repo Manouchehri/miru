@@ -71,6 +71,14 @@ func (a Archiver) Email() string {
 	return a.emailAddress
 }
 
+// Password is a getter function that gets the archiver's hashed password,
+// for use during login.
+// Returns:
+// The archiver's hashed password.
+func (a Archiver) Password() string {
+	return a.passwordHash
+}
+
 // IsAdmin is a getter function that determines whether the archiver is an
 // administrator.
 // Returns:

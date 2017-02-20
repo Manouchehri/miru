@@ -94,6 +94,13 @@ func (s Session) ID() string {
 	return s.id
 }
 
+// Expires is a getter function that gets the session's expire time.
+// Returns:
+// The time that the session should cease to be considered valid.
+func (s Session) Expires() time.Time {
+	return s.expiresAt
+}
+
 // Update always produces an error.
 // Arguments:
 // db: A database connection.

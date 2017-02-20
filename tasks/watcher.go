@@ -24,7 +24,6 @@ func RunMonitors(
 	for !terminated {
 		select {
 		case <-time.After(sleepPeriod):
-			fmt.Println("Looking for a ready monitor")
 			monitors, err := models.FindReadyMonitors(db, 1)
 			if err != nil {
 				errors <- err

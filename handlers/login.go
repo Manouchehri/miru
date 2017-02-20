@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"fmt"
+
+	"../auth"
 	"../config"
+	"../models"
 
 	"database/sql"
 	"html/template"
@@ -68,4 +72,36 @@ func (h LoginPageHandler) ServeHTTP(
 // req: Provided by the net/http server, contains information about the request.
 func (h LoginHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	email := req.FormValue("email")
+	password := req.FormValue("password")
+	// Check the provided credentials.
+	archiver, findErr := models.FindArchiverByEmail(h.db, email)
+	if findErr != nil {
+		fmt.Println("Invalid email address")
+		BadRequest(res, req)
+		return
+	}
+	if !auth.IsPasswordCorrect(password, archiver.Password()) {
+		fmt.Println("Incorrect password")
+		BadRequest(res, req)
+		return
+	}
+	// Establish a session.
+	session := models.NewSession(archiver, req.RemoteAddr)
+	saveErr := session.Save(h.db)
+	if saveErr != nil {
+		fmt.Println("Error creating new session", saveErr)
+		InternalError(res, req)
+		return
+	}
+	cookie := http.Cookie{
+		Name:    auth.SessionCookieName,
+		Value:   session.ID(),
+		Expires: session.Expires(),
+		Secure:  true,
+	}
+	http.SetCookie(res, &cookie)
+	fmt.Println("Successful login from", email)
+	http.Redirect(res, req, "/", http.StatusFound)
 }
