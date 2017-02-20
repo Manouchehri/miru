@@ -32,7 +32,7 @@ func DoPasswordsMatch(p1, p2 string) bool {
 // True if the account exists, false otherwise.
 func IsEmailAddressTaken(db *sql.DB, email string) bool {
 	archiver, _ := models.FindArchiverByEmail(db, email)
-	return archiver.Email() == ""
+	return archiver.Email() != ""
 }
 
 // SecurePassword applies a random salt to and then hashes a password with a
