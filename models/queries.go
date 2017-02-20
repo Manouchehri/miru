@@ -29,6 +29,17 @@ create table if not exists archivers (
   last_login_time timestamp
 );`
 
+// QInitSessionsTable is an SQL query that creates the sessions table.
+const QInitSessionsTable = `
+create table if not exists sessions (
+  id varchar(32) primary key,
+  owner int unique,
+  created_at timestamp not null,
+  expires_at timestamp not null,
+  ip_address varchar(45) not null,
+  foreign key(owner) references archivers(id)
+);`
+
 // QSaveMonitor is an SQL query that saves a new monitor.
 const QSaveMonitor = `
 insert into monitors (
@@ -94,3 +105,20 @@ select
   last_login_ip, last_login_time
 from archivers
 where email_address = $1;`
+
+// QSaveSession is an SQL query that creates a new session for an
+// authenticated archiver.
+const QSaveSession = `
+insert into sessions (
+  id, owner, created_at, expires_at, ip_address
+) values ($1, $2, $3, $4, $5);`
+
+// QDeleteSession is an SQL query that deletes a session.
+const QDeleteSession = `delete from sessions where id = $1;`
+
+// QFindSession is an SQL query that finds a session given its token (id).
+const QFindSession = `
+select
+  owner, created_at, expires_at, ip_address
+from sessions
+where id = $1;`
