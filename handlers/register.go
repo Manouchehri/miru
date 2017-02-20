@@ -1,0 +1,62 @@
+package handlers
+
+import (
+	"../auth"
+	"../config"
+	"../models"
+
+	"database/sql"
+	"fmt"
+	"net/http"
+)
+
+// RegisterHandler implements net/http.ServeHTTP to handle POST requests
+// containing the email address and password sent in archiver the register form.
+type RegisterHandler struct {
+	cfg *config.Config
+	db  *sql.DB
+}
+
+// NewRegisterHandler is the constructor function for a new RegisterHandler.
+// Arguments:
+// cfg: A reference to the application's global configuration.
+// db: A reference to a database connection.
+// Returns:
+// A new RegisterHandler that can be bound to a router.
+func NewRegisterHandler(cfg *config.Config, db *sql.DB) RegisterHandler {
+	return RegisterHandler{
+		cfg: cfg,
+		db:  db,
+	}
+}
+
+// ServeHTTP handles POST requests containing an archiver's registration data.
+// Arguments:
+// res: Provided by the net/http server, used to write the response.
+// req: Provided by the net/http server, contains information about the request.
+func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	email := req.FormValue("email")
+	password := req.FormValue("password")
+	passwordRepeated := req.FormValue("passrepeat")
+
+	if !auth.DoPasswordsMatch(password, passwordRepeated) {
+		fmt.Println("Passwords don't match")
+		BadRequest(res, req)
+		return
+	}
+	if auth.IsEmailAddressTaken(h.db, email) {
+		fmt.Println("Email address taken")
+		BadRequest(res, req)
+		return
+	}
+	passwordHash := auth.SecurePassword(password)
+	archiver := models.NewArchiver(email, passwordHash)
+	saveErr := archiver.Save(h.db)
+	if saveErr != nil {
+		fmt.Println("Failed to save new archiver", saveErr)
+		InternalError(res, req)
+		return
+	}
+	res.Write([]byte(fmt.Sprintf("Successfully registered %s", email)))
+}
