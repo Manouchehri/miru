@@ -77,7 +77,8 @@ func (h UploadScriptHandler) ServeHTTP(
 		return
 	}
 	defer file.Close()
-	toDisk, openErr := os.Create(generateUniqueFilename(h.cfg.ScriptDir, ext))
+	filename := generateUniqueFilename(h.cfg.ScriptDir, ext)
+	toDisk, openErr := os.Create(filename)
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
 		InternalError(res, req)
