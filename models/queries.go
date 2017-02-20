@@ -85,3 +85,12 @@ where id = $7;`
 
 // QDeleteArchiver is an SQL query that deletes a user account entirely.
 const QDeleteArchiver = `delete from archivers where id = $1;`
+
+// QFindArchiverByEmail is an SQL query that attempts to find a user account
+// associated with a given email address.
+const QFindArchiverByEmail = `
+select
+  id, made_admin_by, is_administrator, password_hash,
+  last_login_ip, last_login_time
+from archivers
+where email_address = $1;`

@@ -37,11 +37,38 @@ func NewArchiver(email string, passwordHash string) Archiver {
 	}
 }
 
+// FindArchiverByEmail attempts to find an Archiver in the database who has
+// registered with the provided email address.
+// Arguments:
+// db: A database connection.
+// email: The email address to look for an account associated with.
+// Returns:
+// An Archiver instance if a user exists, and an error if one does not, or
+// retrieving the account's information fails.
+func FindArchiverByEmail(db *sql.DB, email string) (Archiver, error) {
+	a := Archiver{}
+	err := db.QueryRow(QFindArchiverByEmail, email).Scan(
+		&a.id, &a.madeAdminBy, &a.isAdmin, &a.passwordHash,
+		&a.loggedInFrom, &a.loggedInAt)
+	if err != nil {
+		return Archiver{}, err
+	}
+	a.emailAddress = email
+	return a, nil
+}
+
 // ID is a getter function for an user's identifier.
 // Returns:
 // The archiver's id in the archivers table.
 func (a Archiver) ID() int {
 	return a.id
+}
+
+// Email is a getter function that gets the archiver's email address.
+// Returns:
+// The archiver's email address.
+func (a Archiver) Email() string {
+	return a.emailAddress
 }
 
 // IsAdmin is a getter function that determines whether the archiver is an
