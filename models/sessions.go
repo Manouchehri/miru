@@ -63,6 +63,27 @@ func FindSession(db *sql.DB, id string) (Session, error) {
 	return s, nil
 }
 
+// ID is a getter function that gets the session's id/token.
+// Returns:
+// The session's random token string.
+func (s Session) ID() string {
+	return s.id
+}
+
+// Expires is a getter function that gets the session's expire time.
+// Returns:
+// The time that the session should cease to be considered valid.
+func (s Session) Expires() time.Time {
+	return s.expiresAt
+}
+
+// Owner is a getter function for a session's owner archiver ID.
+// Returns:
+// The ID of the archiver that owns the session.
+func (s Session) Owner() int {
+	return s.owner
+}
+
 // Save stores a new session token in the database after making a secure token.
 // Arguments:
 // db: A database connection.
@@ -85,20 +106,6 @@ func (s *Session) Save(db *sql.DB) error {
 		s.id = ""
 	}
 	return err
-}
-
-// ID is a getter function that gets the session's id/token.
-// Returns:
-// The session's random token string.
-func (s Session) ID() string {
-	return s.id
-}
-
-// Expires is a getter function that gets the session's expire time.
-// Returns:
-// The time that the session should cease to be considered valid.
-func (s Session) Expires() time.Time {
-	return s.expiresAt
 }
 
 // Update always produces an error.

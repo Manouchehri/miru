@@ -37,6 +37,39 @@ func NewArchiver(email string, passwordHash string) Archiver {
 	}
 }
 
+// FindArchiver attempts to find an archiver in the database with a given id.
+// Arguments:
+// db: A database connection.
+// id: The unique identifier of the archiver to look up.
+// Returns:
+// An Archiver instance if a user exists, and an error if one does not, or
+// retrieving the account's information fails.
+func FindArchiver(db *sql.DB, id int) (Archiver, error) {
+	a := Archiver{}
+	err := db.QueryRow(QFindArchiver, id).Scan(
+		&a.emailAddress, &a.passwordHash, &a.madeAdminBy,
+		&a.isAdmin, &a.loggedInFrom, &a.loggedInAt)
+	if err != nil {
+		return Archiver{}, err
+	}
+	return a, nil
+}
+
+// FindSessionOwner attempts to find the archiver that owns a session token.
+// Arguments:
+// db: A database connection.
+// sessionToken: A session token read from a cookie.
+// Returns:
+// The Archiver owning the session provided or any error that occurs trying
+// to find them.
+func FindSessionOwner(db *sql.DB, sessionToken string) (Archiver, error) {
+	s, err := FindSession(db, sessionToken)
+	if err != nil {
+		return Archiver{}, err
+	}
+	return FindArchiver(db, s.Owner())
+}
+
 // FindArchiverByEmail attempts to find an Archiver in the database who has
 // registered with the provided email address.
 // Arguments:

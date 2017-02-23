@@ -12,7 +12,7 @@ import (
 
 // SessionCookieName is the name of the cookie to store in the user's
 // browser to identify their authenticated session with.
-const SessionCookieName string = "miru-session"
+const SessionCookieName string = "mirusession"
 
 // maxGenerateTokenAttempts is the maximum number of times to attempt to
 // generate a unique session token.  If GenerateUniqueSessionToken fails to

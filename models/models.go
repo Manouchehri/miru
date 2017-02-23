@@ -4,6 +4,14 @@ import (
 	"database/sql"
 )
 
+// Model is an interface for all model types. We expect at least the following
+// basic database manipulations to be implemented for each model.
+type Model interface {
+	Save(*sql.DB) error
+	Update(*sql.DB) error
+	Delete(*sql.DB) error
+}
+
 // InitializeTables creates all of the database tables used by miru.
 // Arguments:
 // db: A connection to the database.
@@ -23,12 +31,4 @@ func InitializeTables(db *sql.DB) error {
 		return err
 	}
 	return nil
-}
-
-// Model is an interface for all model types. We expect at least the following
-// basic database manipulations to be implemented for each model.
-type Model interface {
-	Save(*sql.DB) error
-	Update(*sql.DB) error
-	Delete(*sql.DB) error
 }

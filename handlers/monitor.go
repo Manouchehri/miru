@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"../auth"
 	"../config"
 	"../models"
 
@@ -69,12 +70,27 @@ func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
 // req: Provided by the net/http server, contains information about the request.
 func (h UploadScriptHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
+	// Check that the request is being made by an authenticated administrator.
+	fmt.Println(req.Cookies())
+	cookie, err := req.Cookie(auth.SessionCookieName)
+	if err != nil {
+		fmt.Println("Could not find cookie", err)
+		BadRequest(res, req)
+		return
+	}
+	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
+	if err != nil || !activeUser.IsAdmin() {
+		fmt.Println("Could not get cookie owner", err)
+		BadRequest(res, req)
+		return
+	}
 	// Extract inputs from the form.
 	waitPeriod, parseErr1 := strconv.Atoi(req.FormValue("waitPeriod"))
 	expectedRuntime, parseErr2 := strconv.Atoi(req.FormValue("expectedRuntime"))
 	filetype := req.FormValue("filetype")
 	ext, ftErr := filetypeExtension(filetype)
 	if ftErr != nil || parseErr1 != nil || parseErr2 != nil {
+		fmt.Println(ftErr)
 		BadRequest(res, req)
 		return
 	}
@@ -97,13 +113,14 @@ func (h UploadScriptHandler) ServeHTTP(
 	io.Copy(toDisk, file)
 	// Create a new Monitor in the database.
 	monitor := models.NewMonitor(
-		models.Archiver{},
+		activeUser,
 		models.Interpreter(filetype),
 		filename,
 		time.Duration(waitPeriod)*time.Minute,
 		time.Duration(expectedRuntime)*time.Second)
 	saveErr := monitor.Save(h.db)
 	if saveErr != nil {
+		fmt.Println(saveErr)
 		InternalError(res, req)
 		return
 	}

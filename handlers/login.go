@@ -99,8 +99,8 @@ func (h LoginHandler) ServeHTTP(
 		Name:    auth.SessionCookieName,
 		Value:   session.ID(),
 		Expires: session.Expires(),
-		Secure:  true,
 	}
+	fmt.Println("Created cookie", cookie)
 	http.SetCookie(res, &cookie)
 	fmt.Println("Successful login from", email)
 	http.Redirect(res, req, "/", http.StatusFound)
