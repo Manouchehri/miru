@@ -9,11 +9,13 @@ create table if not exists monitors (
   id integer primary key,
   interpreter varchar(16) not null,
   script_location varchar(255) not null,
+	created_for integer,
   created_by integer,
   created_at timestamp,
   last_ran_at timestamp,
   wait_period_minutes integer,
   expected_run_time integer,
+	foreign key(created_for) references requests(id),
   foreign key(created_by) references archivers(id)
 );`
 
@@ -40,12 +42,23 @@ create table if not exists sessions (
   foreign key(owner) references archivers(id)
 );`
 
+// QInitRequestsTable is an SQL query that creates the requests table.
+const QInitRequestsTable = `
+create table if not exists requests (
+	id integer primary key,
+	created_by integer,
+	created_at timestamp not null,
+	url text not null,
+	instructions text,
+	foreign key(created_by) references archivers(id)
+);`
+
 // QSaveMonitor is an SQL query that saves a new monitor.
 const QSaveMonitor = `
 insert into monitors (
-  interpreter, script_location, created_by, created_at,
+  interpreter, script_location, created_for, created_by, created_at,
   last_ran_at, wait_period_minutes, expected_run_time
-) values ($1, $2, $3, $4, $5, $6, $7);`
+) values ($1, $2, $3, $4, $5, $6, $7, $8);`
 
 // QUpdateMonitor is an SQL query that updates an existing monitor.
 // Note that we would rather a monitor be deleted and a new one created if a new
@@ -64,7 +77,7 @@ const QDeleteMonitor = `delete from monitors where id = $1;`
 // between runs has expired.
 const QFindReadyMonitors = `
 select
-  id, interpreter, script_location, created_by, created_at,
+  id, interpreter, script_location, created_for, created_by, created_at,
   last_ran_at, wait_period_minutes, expected_run_time
 from monitors
 where

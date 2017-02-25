@@ -24,6 +24,7 @@ const (
 // check a website for changes.
 type Monitor struct {
 	id          int
+	createdFor  int
 	createdBy   int
 	interpreter string
 	scriptPath  string
@@ -37,6 +38,7 @@ type Monitor struct {
 // uploaded to monitor a website, a monitor should be created using NewMonitor.
 // Arguments:
 // creator: The administrator that uploaded the update checking script.
+// requestedBy: The request that is being fulfilled.
 // cmd: The interpreter used to run the script.
 // filePath: The path to the script saved on disk.
 // waitBetweenRuns: The amount of time (minutes) to wait between script runs.
@@ -45,6 +47,7 @@ type Monitor struct {
 // A new Monitor containing the provided data.
 func NewMonitor(
 	creator Archiver,
+	requestedBy Request,
 	cmd Interpreter,
 	filePath string,
 	waitBetweenRuns time.Duration,
@@ -55,6 +58,7 @@ func NewMonitor(
 	return Monitor{
 		id:          -1,
 		createdBy:   creator.ID(),
+		createdFor:  requestedBy.ID(),
 		interpreter: string(cmd),
 		scriptPath:  filePath,
 		createdAt:   time.Now(),
@@ -82,7 +86,7 @@ func FindReadyMonitors(db *sql.DB, limit uint) ([]Monitor, error) {
 	for rows.Next() {
 		var m Monitor
 		err = rows.Scan(
-			&m.id, &m.interpreter, &m.scriptPath, &m.createdBy,
+			&m.id, &m.interpreter, &m.scriptPath, &m.createdFor, &m.createdBy,
 			&m.createdAt, &m.lastRan, &m.waitPeriod, &m.timeToRun)
 		if err != nil {
 			break
@@ -115,7 +119,7 @@ func (m *Monitor) SetLastRun() {
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
 	_, err := db.Exec(QSaveMonitor,
-		m.interpreter, m.scriptPath, m.createdBy, m.createdAt,
+		m.interpreter, m.scriptPath, m.createdFor, m.createdBy, m.createdAt,
 		m.lastRan, m.waitPeriod, m.timeToRun)
 	if err != nil {
 		return err

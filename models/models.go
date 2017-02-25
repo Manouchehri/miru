@@ -30,5 +30,9 @@ func InitializeTables(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = db.Exec(QInitRequestsTable)
+	if err != nil {
+		return err
+	}
 	return nil
 }
