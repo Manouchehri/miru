@@ -65,6 +65,7 @@ func main() {
 	loginPage := handlers.NewLoginPageHandler(&cfg)
 	login := handlers.NewLoginHandler(&cfg, db)
 	requestPage := handlers.NewMakeRequestPageHandler(&cfg, db)
+	request := handlers.NewMakeRequestHandler(&cfg, db)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
@@ -73,6 +74,7 @@ func main() {
 	r.Handle("/login", loginPage).Methods("GET")
 	r.Handle("/login", login).Methods("POST")
 	r.Handle("/request", requestPage).Methods("GET")
+	r.Handle("/request", request).Methods("POST")
 
 	http.Handle("/", r)
 	fmt.Println("Listening on", cfg.BindAddress)
