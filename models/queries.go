@@ -159,4 +159,11 @@ const QIsRequestFulfilled = `
 select exists(
 	select id
 	from monitors 
-	where created_for = $1);`
+	where created_for = $1
+);`
+
+// QFindRequest is an SQL query that attempts to find a monitor request.
+const QFindRequest = `
+select created_by, created_at, url, instructions
+from requests
+where id = $1;`

@@ -87,10 +87,18 @@ func (h UploadScriptHandler) ServeHTTP(
 	// Extract inputs from the form.
 	waitPeriod, parseErr1 := strconv.Atoi(req.FormValue("waitPeriod"))
 	expectedRuntime, parseErr2 := strconv.Atoi(req.FormValue("expectedRuntime"))
+	requestID, parseErr3 := strconv.Atoi(req.FormValue("satisfiedRequest"))
 	filetype := req.FormValue("filetype")
 	ext, ftErr := filetypeExtension(filetype)
-	if ftErr != nil || parseErr1 != nil || parseErr2 != nil {
+	if ftErr != nil || parseErr1 != nil || parseErr2 != nil || parseErr3 != nil {
 		fmt.Println(ftErr)
+		BadRequest(res, req)
+		return
+	}
+	// Find the request that is being fulfilled to establish relational data.
+	request, findErr := models.FindRequest(h.db, requestID)
+	if findErr != nil {
+		fmt.Println("no such request", requestID, "ERROR", findErr)
 		BadRequest(res, req)
 		return
 	}
@@ -114,6 +122,7 @@ func (h UploadScriptHandler) ServeHTTP(
 	// Create a new Monitor in the database.
 	monitor := models.NewMonitor(
 		activeUser,
+		request,
 		models.Interpreter(filetype),
 		filename,
 		time.Duration(waitPeriod)*time.Minute,

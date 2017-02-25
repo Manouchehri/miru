@@ -40,6 +40,23 @@ func (r Request) ID() int {
 	return r.id
 }
 
+// FindRequest attempts to find an existing monitor request given its ID.
+// Arguments:
+// db: A database connection.
+// id: The unique identifier of the request to look for.
+// Returns:
+// A Request if one is found with the id, or else an error if either such
+// a request does not exist or the database encounters an error.
+func FindRequest(db *sql.DB, id int) (Request, error) {
+	r := Request{}
+	err := db.QueryRow(QFindRequest, id).Scan(
+		&r.createdBy, &r.createdAt, &r.url, &r.instructions)
+	if err != nil {
+		return Request{}, err
+	}
+	return r, nil
+}
+
 // Save inserts a new request into the requests table.
 // Arguments:
 // db: A database connection.
