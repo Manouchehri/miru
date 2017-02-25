@@ -167,3 +167,14 @@ const QFindRequest = `
 select created_by, created_at, url, instructions
 from requests
 where id = $1;`
+
+// QListPendingRequests is an SQL query that finds all requests for which no
+// monitor has yet been created to fulfill.
+const QListPendingRequests = `
+select R.id, R.created_by, R.created_at, R.url, R.instructions
+from requests R
+where not exists(
+	select M.id
+	from monitors M
+	where M.created_for = R.id
+);`

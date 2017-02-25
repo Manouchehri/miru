@@ -57,6 +57,46 @@ func FindRequest(db *sql.DB, id int) (Request, error) {
 	return r, nil
 }
 
+// ListPendingRequests attempts to find all requests that have not had monitors
+// created for them yet.
+// Arguments:
+// db: A database connection.
+// Returns:
+// An array of requests. An error if querying the database fails.
+func ListPendingRequests(db *sql.DB) ([]Request, error) {
+	requests := []Request{}
+	rows, err := db.Query(QListPendingRequests)
+	if err != nil {
+		return requests, err
+	}
+	for rows.Next() {
+		r := Request{}
+		err = rows.Scan(&r.id, &r.createdBy, &r.createdAt, &r.url, &r.instructions)
+		if err != nil {
+			return []Request{}, err
+		}
+		requests = append(requests, r)
+	}
+	return requests, nil
+}
+
+// URL is a getter function for the URL that a request was made to monitor.
+func (r Request) URL() string {
+	return r.url
+}
+
+// Instructions is a getter function for the instructions provided to help
+// write a monitor script for the site.
+func (r Request) Instructions() string {
+	return r.instructions
+}
+
+// Creator is a getter function for the ID of the archiver that created
+// the request.
+func (r Request) Creator() int {
+	return r.createdBy
+}
+
 // Save inserts a new request into the requests table.
 // Arguments:
 // db: A database connection.
