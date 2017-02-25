@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Miru Website Monitor</title>
+  </head>
+  <body>
+    <form method="POST" action="/request">
+      <div>
+        <input type="text" id="url" name="url" placeholder="Website address" />
+      </div>
+      <div>
+        <textarea id="instructions" name="instructions" cols="80" rows="10">
+Please write any instructions that will help us identify what part of
+the site needs to be inspected and what we may be able to look for to
+determine if a change has been made.
+        </textarea>
+      </div>
+      <div>
+        <input type="submit" id="makerequest" value="Submit" />
+      </div>
+    </form>
+  </body>
+</html>
