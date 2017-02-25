@@ -143,3 +143,20 @@ select
   owner, created_at, expires_at, ip_address
 from sessions
 where id = $1;`
+
+// QSaveRequest is an SQL query that inserts a new request.
+const QSaveRequest = `
+insert into requests (
+	created_by, created_at, url, instructions
+) values ($1, $2, $3, $4);`
+
+// QRejectRequest is an SQL query that deletes a request.
+const QRejectRequest = `delete from requests where id = $1;`
+
+// QIsRequestFulfilled is an SQL query that determines whether a request has been
+// fulfilled by looking for a monitor that was created to fulfill it.
+const QIsRequestFulfilled = `
+select exists(
+	select id
+	from monitors 
+	where created_for = $1);`
