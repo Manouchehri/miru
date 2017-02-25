@@ -52,6 +52,7 @@ func FindArchiver(db *sql.DB, id int) (Archiver, error) {
 	if err != nil {
 		return Archiver{}, err
 	}
+	a.id = id
 	return a, nil
 }
 
