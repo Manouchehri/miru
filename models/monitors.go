@@ -111,6 +111,13 @@ func (m Monitor) ScriptPath() string {
 	return m.scriptPath
 }
 
+// ID is a getter function for a monitor's unique identifier.
+// Returns:
+// The monitor's id.
+func (m Monitor) ID() int {
+	return m.id
+}
+
 // SetLastRun sets the monitor's last run time to now.
 func (m *Monitor) SetLastRun() {
 	m.lastRan = time.Now()

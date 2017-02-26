@@ -198,3 +198,12 @@ insert into reports(
 	created_by, created_at, change_significance,
 	message_to_admin, checksum, state_data
 ) values($1, $2, $3, $4, $5, $6);`
+
+// QFindLastReportForMonitor is an SQL query that attempts to find the last report
+// created by a monitor script.
+const QFindLastReportForMonitor = `
+select id, created_at, change_significance, message_to_admin, checksum, state_data
+from reports
+where created_by = $1
+order by created_at desc
+limit 1;`

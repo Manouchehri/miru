@@ -30,6 +30,23 @@ type Report struct {
 	stateData          map[string]interface{} `json:"state"`
 }
 
+// FindLastReportForMonitor looks up the last report output by a monitor script.
+// Arguments:
+// db: A database connection.
+// monitor: The monitor that is going to be run.
+// Returns:
+// A Report containing the monitor script's last output, if one can be found,
+// or else an error if something fails in the database.
+func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
+	r := Report{}
+	err := db.QueryRow(QFindLastReportForMonitor, monitor.ID()).Scan(
+		&r.id, &r.createdAt, &r.changeSignificance, &r.messageToAdmin, &r.checksum, &r.stateData)
+	if err != nil {
+		return Report{}, err
+	}
+	return r, nil
+}
+
 // Save creates a new Report in the database for an admin to view later and to be
 // provided as input during the next invokation of the monitor script that
 // produced it.
