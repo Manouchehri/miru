@@ -53,6 +53,19 @@ create table if not exists requests (
 	foreign key(created_by) references archivers(id)
 );`
 
+// QInitReportsTable is an SQL query that creates the reports table.
+const QInitReportsTable = `
+create table if not exists reports (
+	id integer primary key,
+	created_by integer,
+	created_at timestamp,
+	change_significance integer,
+	message_to_admin text,
+	checksum varchar(128),
+	state_data text,
+	foreign key(created_by) references monitors(id)
+);`
+
 // QSaveMonitor is an SQL query that saves a new monitor.
 const QSaveMonitor = `
 insert into monitors (
