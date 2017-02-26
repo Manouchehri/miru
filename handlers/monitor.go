@@ -127,6 +127,8 @@ func (h UploadScriptHandler) ServeHTTP(
 		filename,
 		time.Duration(waitPeriod)*time.Minute,
 		time.Duration(expectedRuntime)*time.Second)
+	fmt.Println("Creating monitor for", request.ID())
+	fmt.Println("Monitor", monitor)
 	saveErr := monitor.Save(h.db)
 	if saveErr != nil {
 		fmt.Println(saveErr)
@@ -141,14 +143,30 @@ func (h UploadScriptHandler) ServeHTTP(
 // Arguments:
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
-func (h UploadPageHandler) ServeHTTP(
-	res http.ResponseWriter, req *http.Request) {
+func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	requestIDs, found := req.URL.Query()["id"]
+	if !found || len(requestIDs) == 0 {
+		fmt.Println("Need a request id")
+		BadRequest(res, req)
+		return
+	}
+	requestID, parseErr := strconv.Atoi(requestIDs[0])
+	if parseErr != nil {
+		fmt.Println("Need a request valid id")
+		BadRequest(res, req)
+		return
+	}
 	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, uploadPage))
 	if err != nil {
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, nil)
+	data := struct {
+		CreatedFor int
+	}{
+		requestID,
+	}
+	t.Execute(res, data)
 }
 
 // generateUniqueFilename produces a filename that is guaranteed to be unique.

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"fmt"
 	"math"
 	"time"
 )
@@ -118,6 +119,7 @@ func (m *Monitor) SetLastRun() {
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
+	fmt.Println("Saving monitor for request ID", m.createdFor)
 	_, err := db.Exec(QSaveMonitor,
 		m.interpreter, m.scriptPath, m.createdFor, m.createdBy, m.createdAt,
 		m.lastRan, m.waitPeriod, m.timeToRun)

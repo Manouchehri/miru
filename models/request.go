@@ -54,6 +54,7 @@ func FindRequest(db *sql.DB, id int) (Request, error) {
 	if err != nil {
 		return Request{}, err
 	}
+	r.id = id
 	return r, nil
 }
 
