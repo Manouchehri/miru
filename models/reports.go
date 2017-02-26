@@ -13,8 +13,8 @@ const (
 	NoChange      Importance = 0 // The page hasn't changed.
 	MinorUpdate   Importance = 1 // A minor textual change occurred, such as a typo fix.
 	ContentChange Importance = 2 // The content has been modified in a meaningful way.
-	Rewritten     Importance = 4 // The entirety of the site's content has been replaced.
-	Deleted       Importance = 8 // The site has been completed deleted.
+	Rewritten     Importance = 3 // The entirety of the site's content has been replaced.
+	Deleted       Importance = 4 // The site has been completed deleted.
 )
 
 // Report contains information output by a monitor script informing us of any
@@ -22,8 +22,8 @@ const (
 // used by monitor scripts to include any extra data that might be useful to them.
 type Report struct {
 	id                 int                    `json:"-"`
-	createdBy          int                    `json:"createdBy"`
-	createdAt          time.Time              `json:"createdAt"`
+	createdBy          int                    `json:"-"`
+	createdAt          time.Time              `json:"-"`
 	changeSignificance Importance             `json:"lastChangeSignificance"`
 	messageToAdmin     string                 `json:"message"`
 	checksum           string                 `json:"checksum"`
