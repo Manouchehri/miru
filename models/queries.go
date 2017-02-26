@@ -191,3 +191,10 @@ where not exists(
 	from monitors M
 	where M.created_for = R.id
 );`
+
+// QSaveReport is an SQL query that inserts a new report into the reports table.
+const QSaveReport = `
+insert into reports(
+	created_by, created_at, change_significance,
+	message_to_admin, checksum, state_data
+) values($1, $2, $3, $4, $5, $6);`

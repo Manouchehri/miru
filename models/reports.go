@@ -38,7 +38,13 @@ type Report struct {
 // Returns:
 // An error if the database insertion fails.
 func (r *Report) Save(db *sql.DB) error {
-	return nil
+	_, err := db.Exec(QSaveReport,
+		r.createdBy, r.createdAt, r.changeSignificance, r.messageToAdmin, r.checksum, r.stateData)
+	if err != nil {
+		return err
+	}
+	err = db.QueryRow(QLastRowID).Scan(&r.id)
+	return err
 }
 
 // Update always returns an error because we don't want to allow reports to be changed.
