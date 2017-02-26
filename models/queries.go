@@ -98,6 +98,13 @@ where
   >= wait_period_minutes
 limit $1;`
 
+// QListMonitors is an SQL query that retrieves a list of all monitors.
+const QListMonitors = `
+select
+  id, interpreter, script_location, created_for, created_by, created_at,
+  last_ran_at, wait_period_minutes, expected_run_time
+from monitors;`
+
 // QIsUserAnAdmin is an SQL query that checks if a given user has
 // administrator privileges, allowing them to create monitors.
 const QIsUserAnAdmin = `select is_administrator from archivers where id = $1;`

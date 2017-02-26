@@ -69,6 +69,31 @@ func NewMonitor(
 	}
 }
 
+// ListMonitors attempts to get a list of all of the monitors registered.
+// Arguments:
+// db: A database connection.
+// Returns:
+// A list of all monitors in the dabatase, or as many as can be read until an
+// error occurs. The first error encountered trying to read data is returned.
+func ListMonitors(db *sql.DB) ([]Monitor, error) {
+	allMonitors := []Monitor{}
+	rows, err := db.Query(QListMonitors)
+	if err != nil {
+		return allMonitors, err
+	}
+	for rows.Next() {
+		m := Monitor{}
+		err = rows.Scan(
+			&m.id, &m.interpreter, &m.scriptPath, &m.createdFor, &m.createdBy,
+			&m.createdAt, &m.lastRan, &m.waitPeriod, &m.timeToRun)
+		if err != nil {
+			break
+		}
+		allMonitors = append(allMonitors, m)
+	}
+	return allMonitors, err
+}
+
 // FindReadyMonitors finds monitors that we've waited long enough to run again.
 // The function will return the first error it encounters, along with any
 // monitors retrieved until that point.
