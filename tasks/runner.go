@@ -12,12 +12,6 @@ import (
 	"os/exec"
 )
 
-// Result is the container type for the output expected to be produced by
-// a monitor script.
-type Result struct {
-	Message string `json:"message"`
-}
-
 // RunMonitorScript executes a monitor script in a subprocess and writes either
 // a successful result or an error to a provided channel.
 // Arguments:
@@ -25,7 +19,7 @@ type Result struct {
 // result: A channel to write a result through. Can have a buffer of size 1.
 // err: A channel to write an error through. Can have a buffer of size 1.
 func RunMonitorScript(
-	monitor models.Monitor, result chan<- Result, err chan<- error) {
+	monitor models.Monitor, result chan<- models.Report, err chan<- error) {
 	// Determine which interpreter to run the script with.
 	// This is a bit verbose, but it allows us to control input to prevent
 	// someone trying to supply a command that we don't actually want to run.
@@ -57,9 +51,9 @@ func RunMonitorScript(
 			err <- startErr
 		}
 	}()
-	// Decode the input into a Result struct or else produce an error.
+	// Decode the input into a models.Report struct or else produce an error.
 	decoder := json.NewDecoder(pipeIn)
-	data := Result{}
+	data := models.Report{}
 	fmt.Println("decoding result")
 	decodeErr := decoder.Decode(&data)
 	if decodeErr != nil {

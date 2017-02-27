@@ -19,7 +19,7 @@ import (
 func RunMonitors(
 	db *sql.DB, sleepPeriod time.Duration,
 	errors chan<- error, terminate <-chan bool) {
-	results := make(chan Result)
+	results := make(chan models.Report)
 	terminated := false
 	for !terminated {
 		select {
