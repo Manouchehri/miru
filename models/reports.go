@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -103,8 +104,12 @@ func (r Report) Checksum() string {
 // Returns:
 // An error if the database insertion fails.
 func (r *Report) Save(db *sql.DB) error {
+	stateData, encodeErr := json.Marshal(r.stateData)
+	if encodeErr != nil {
+		return encodeErr
+	}
 	_, err := db.Exec(QSaveReport,
-		r.createdBy, r.createdAt, r.changeSignificance, r.messageToAdmin, r.checksum, r.stateData)
+		r.createdBy, r.createdAt, r.changeSignificance, r.messageToAdmin, r.checksum, string(stateData))
 	if err != nil {
 		return err
 	}
