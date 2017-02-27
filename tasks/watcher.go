@@ -39,6 +39,10 @@ func RunMonitors(
 			}
 		case result := <-results:
 			fmt.Println("Got result", result)
+			saveErr := result.Save(db)
+			if saveErr != nil {
+				errors <- saveErr
+			}
 		case <-terminate:
 			terminated = true
 		}
