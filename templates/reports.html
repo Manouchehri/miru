@@ -1,0 +1,28 @@
+ <!DOCTYPE html>
+<html>
+  <head>
+    <title>Miru Website Monitor</title>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>Monitor ID</th>
+        <th>Script Path</th>
+        <th>Last Ran</th>
+        <th>Site Change</th>
+        <th>Checksum</th>
+        <th>Message</th>
+      </tr>
+      {{range .Reports}}
+      <tr>
+        <th>{{.MonitorID}}</th>
+        <th>{{.ScriptPath}}</th>
+        <th>{{.LastRan}}</th>
+        <th>{{.ChangeSignificance}}</th>
+        <th>{{.Message}}</th>
+        <th>{{.Checksum}}</th>
+      </tr>
+      {{end}}
+    </table>
+  </body>
+</html>

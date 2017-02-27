@@ -17,6 +17,24 @@ const (
 	Deleted       Importance = 4 // The site has been completed deleted.
 )
 
+// String produces a human-readable representation for each level of Report Importance.
+func (i Importance) String() string {
+	switch i {
+	case NoChange:
+		return "No Change"
+	case MinorUpdate:
+		return "Minor Update"
+	case ContentChange:
+		return "Content Change"
+	case Rewritten:
+		return "Major Rewrite"
+	case Deleted:
+		return "Deleted Page"
+	default:
+		return "Uknown"
+	}
+}
+
 // Report contains information output by a monitor script informing us of any
 // changes on the site being monitored. The stateData (state in JSON) field can be
 // used by monitor scripts to include any extra data that might be useful to them.
@@ -30,7 +48,7 @@ type Report struct {
 	stateData          map[string]interface{} `json:"state"`
 }
 
-// FindLastReportForMonitor looks up the last report output by a monitor script.
+// FindLastReportForMonitor looks up the last Report output by a monitor script.
 // Arguments:
 // db: A database connection.
 // monitor: The monitor that is going to be run.
@@ -45,6 +63,36 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 		return Report{}, err
 	}
 	return r, nil
+}
+
+// ID is a getter function for the Report's unique identifier.
+// Returns:
+// The Report's unique id.
+func (r Report) ID() int {
+	return r.id
+}
+
+// Change is a getter for the Report's states significance of the change since its
+// last inspection.
+// Returns:
+// The level of importance of the change since the script was last run.
+func (r Report) Change() Importance {
+	return r.changeSignificance
+}
+
+// Message is a getter for the Report's message to the admins about the state of
+// the site that it is monitoring.
+// Returns:
+// A message to miru's administrators.
+func (r Report) Message() string {
+	return r.messageToAdmin
+}
+
+// Checksum is a getter for the Report's checksum of the site's data.
+// Returns:
+// The checksum of the monitored site's significant content.
+func (r Report) Checksum() string {
+	return r.checksum
 }
 
 // Save creates a new Report in the database for an admin to view later and to be
@@ -64,20 +112,20 @@ func (r *Report) Save(db *sql.DB) error {
 	return err
 }
 
-// Update always returns an error because we don't want to allow reports to be changed.
+// Update always returns an error because we don't want to allow Reports to be changed.
 // Arguments:
 // db: A database connection.
 // Returns:
-// An error saying that reports cannot be updated.
+// An error saying that Reports cannot be updated.
 func (r *Report) Update(db *sql.DB) error {
 	return errors.New("cannot change a report")
 }
 
-// Delete always returns an error because we don't want to allow reports to be deleted.
+// Delete always returns an error because we don't want to allow Reports to be deleted.
 // Arguments:
 // db: A database connection.
 // Returns:
-// An error saying that reports cannot be deleted.
+// An error saying that Reports cannot be deleted.
 func (r *Report) Delete(db *sql.DB) error {
 	return errors.New("cannot delete a report")
 }

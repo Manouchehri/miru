@@ -148,6 +148,13 @@ func (m *Monitor) SetLastRun() {
 	m.lastRan = time.Now()
 }
 
+// LastRun gets the time that the monitor was last run.
+// Returns:
+// The last time the monitor was run.
+func (m Monitor) LastRun() time.Time {
+	return m.lastRan
+}
+
 // Save inserts a new monitor into the database and updates the id field.
 // WARNING: Save should *not* be called more than once on a model.
 func (m *Monitor) Save(db *sql.DB) error {
