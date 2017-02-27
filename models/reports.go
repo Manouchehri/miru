@@ -58,10 +58,15 @@ type Report struct {
 // or else an error if something fails in the database.
 func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 	r := Report{}
+	stateData := ""
 	err := db.QueryRow(QFindLastReportForMonitor, monitor.ID()).Scan(
-		&r.id, &r.createdAt, &r.changeSignificance, &r.messageToAdmin, &r.checksum, &r.stateData)
+		&r.id, &r.createdAt, &r.changeSignificance, &r.messageToAdmin, &r.checksum, &stateData)
 	if err != nil {
 		return Report{}, err
+	}
+	decodeErr := json.Unmarshal([]byte(stateData), &r.stateData)
+	if decodeErr != nil {
+		return Report{}, decodeErr
 	}
 	return r, nil
 }
