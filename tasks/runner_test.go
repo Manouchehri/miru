@@ -8,16 +8,12 @@ import (
 )
 
 const testPythonScript = `
-import json, sys
-d = json.dumps({"message": "hello world"})
-print(d)
-sys.exit(0)
+print('{"changeSignificance": 0, "message": "hello world", "checksum": "", "state": {}}')
+exit(0)
 `
 
 const testRubyScript = `
-require 'json'
-d = {"message" => "hello world"}
-puts d.to_json
+puts '{"changeSignificance": 0, "message": "hello world", "checksum": "", "state": {}}'
 exit 0
 `
 
@@ -57,14 +53,15 @@ func TestMain(m *testing.M) {
 func TestRunPython(t *testing.T) {
 	t.Log("Running python script")
 	monitor := models.NewMonitor(
-		models.Archiver{}, models.PythonInterpreter, "testpython.py", 0, 0)
-	resultOut := make(chan Result, 1)
+		models.Archiver{}, models.Request{}, models.PythonInterpreter, "testpython.py", 0, 0)
+	lastReport := models.NewReport(monitor)
+	resultOut := make(chan models.Report, 1)
 	errorOut := make(chan error, 1)
-	RunMonitorScript(monitor, resultOut, errorOut)
+	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
 		{
-			if r.Message != "hello world" {
+			if r.Message() != "hello world" {
 				t.Errorf("expected to be able to parse JSON output from the script")
 			}
 		}
@@ -78,14 +75,15 @@ func TestRunPython(t *testing.T) {
 func TestRunRuby(t *testing.T) {
 	t.Log("Running Ruby script")
 	monitor := models.NewMonitor(
-		models.Archiver{}, models.RubyInterpreter, "testruby.rb", 0, 0)
-	resultOut := make(chan Result, 1)
+		models.Archiver{}, models.Request{}, models.RubyInterpreter, "testruby.rb", 0, 0)
+	lastReport := models.NewReport(monitor)
+	resultOut := make(chan models.Report, 1)
 	errorOut := make(chan error, 1)
-	RunMonitorScript(monitor, resultOut, errorOut)
+	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
 		{
-			if r.Message != "hello world" {
+			if r.Message() != "hello world" {
 				t.Errorf("expected to be able to parse JSON output from the script")
 			}
 		}
@@ -98,14 +96,15 @@ func TestRunRuby(t *testing.T) {
 
 func TestRunPerl(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Archiver{}, models.PerlInterpreter, "testperl.pl", 0, 0)
-	resultOut := make(chan Result, 1)
+		models.Archiver{}, models.Request{}, models.PerlInterpreter, "testperl.pl", 0, 0)
+	lastReport := models.NewReport(monitor)
+	resultOut := make(chan models.Report, 1)
 	errorOut := make(chan error, 1)
-	RunMonitorScript(monitor, resultOut, errorOut)
+	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
 		{
-			if r.Message != "hello world" {
+			if r.Message() != "hello world" {
 				t.Errorf("expected to be able to parse JSON output from the script")
 			}
 		}
@@ -118,10 +117,11 @@ func TestRunPerl(t *testing.T) {
 
 func TestRunUnknownFails(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Archiver{}, models.Interpreter("unknown"), "testunknown", 0, 0)
-	resultOut := make(chan Result, 1)
+		models.Archiver{}, models.Request{}, models.Interpreter("unknown"), "testunknown", 0, 0)
+	lastReport := models.NewReport(monitor)
+	resultOut := make(chan models.Report, 1)
 	errorOut := make(chan error, 1)
-	RunMonitorScript(monitor, resultOut, errorOut)
+	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case <-resultOut:
 		{
@@ -136,10 +136,11 @@ func TestRunUnknownFails(t *testing.T) {
 
 func TestRunFailProducesError(t *testing.T) {
 	monitor := models.NewMonitor(
-		models.Archiver{}, models.PythonInterpreter, "testerror.py", 0, 0)
-	resultOut := make(chan Result, 1)
+		models.Archiver{}, models.Request{}, models.PythonInterpreter, "testerror.py", 0, 0)
+	lastReport := models.NewReport(monitor)
+	resultOut := make(chan models.Report, 1)
 	errorOut := make(chan error, 1)
-	RunMonitorScript(monitor, resultOut, errorOut)
+	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case <-resultOut:
 		{
