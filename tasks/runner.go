@@ -81,12 +81,13 @@ func RunMonitorScript(
 		err <- decodeErr
 	} else {
 		fmt.Println("Successfully decoded data", data)
-		changeSig, found1 := data["changeSignificance"]
+		changeSig, found1 := data["lastChangeSignificance"]
 		message, found2 := data["message"]
 		checksum, found3 := data["checksum"]
 		newState, found4 := data["state"]
 		if !found1 || !found2 || !found3 || !found4 {
 			fmt.Println("Didn't find all expected fields")
+			fmt.Println(found1, found2, found3, found4)
 			err <- errors.New("script output invalid data")
 			return
 		}
@@ -99,6 +100,7 @@ func RunMonitorScript(
 		lastReport.SetMessage(message.(string))
 		lastReport.SetChecksum(checksum.(string))
 		lastReport.SetState(newState.(map[string]interface{}))
+		fmt.Println("Put together report with message", lastReport.Message())
 		result <- lastReport
 	}
 }
