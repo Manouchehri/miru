@@ -16,9 +16,7 @@ import (
 // sleepPeriod: The duration of time to wait between reading the DB for tasks.
 // errors: A channel through which any errors can be written.
 // terminate: A channel through which a termination signal can be read.
-func RunMonitors(
-	db *sql.DB, sleepPeriod time.Duration,
-	errors chan<- error, terminate <-chan bool) {
+func RunMonitors(db *sql.DB, sleepPeriod time.Duration, errors chan<- error, terminate <-chan bool) {
 	results := make(chan models.Report)
 	terminated := false
 	for !terminated {
@@ -35,7 +33,17 @@ func RunMonitors(
 				if updateErr != nil {
 					errors <- updateErr
 				}
-				go RunMonitorScript(monitor, results, errors)
+				lastReport, findErr := models.FindLastReportForMonitor(db, monitor)
+				if findErr != nil {
+					fmt.Println("Couldn't find report for monitor", findErr)
+					lastReport = models.NewReport(monitor)
+					saveErr := lastReport.Save(db)
+					if saveErr != nil {
+						fmt.Println("could not save new report", saveErr)
+						errors <- saveErr
+					}
+				}
+				go RunMonitorScript(monitor, lastReport, results, errors)
 			}
 		case result := <-results:
 			fmt.Println("Got result", result)

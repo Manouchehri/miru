@@ -18,7 +18,7 @@ exit 0
 `
 
 const testPerlScript = `
-my $json = '{"message": "hello world"}';
+my $json = '{"changeSignificance": 0, "message": "hello world", "checksum": "", "state": {}}';
 print $json;
 exit 0;
 `
@@ -60,15 +60,11 @@ func TestRunPython(t *testing.T) {
 	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
-		{
-			if r.Message() != "hello world" {
-				t.Errorf("expected to be able to parse JSON output from the script")
-			}
+		if r.Message() != "hello world" {
+			t.Errorf("expected to be able to parse JSON output from the script")
 		}
 	case e := <-errorOut:
-		{
-			t.Errorf("expected not to get an error: %v", e)
-		}
+		t.Errorf("expected not to get an error: %v", e)
 	}
 }
 
@@ -82,15 +78,11 @@ func TestRunRuby(t *testing.T) {
 	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
-		{
-			if r.Message() != "hello world" {
-				t.Errorf("expected to be able to parse JSON output from the script")
-			}
+		if r.Message() != "hello world" {
+			t.Errorf("expected to be able to parse JSON output from the script")
 		}
 	case e := <-errorOut:
-		{
-			t.Errorf("expected not to get an error: %v", e)
-		}
+		t.Errorf("expected not to get an error: %v", e)
 	}
 }
 
@@ -103,15 +95,11 @@ func TestRunPerl(t *testing.T) {
 	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case r := <-resultOut:
-		{
-			if r.Message() != "hello world" {
-				t.Errorf("expected to be able to parse JSON output from the script")
-			}
+		if r.Message() != "hello world" {
+			t.Errorf("expected to be able to parse JSON output from the script")
 		}
 	case e := <-errorOut:
-		{
-			t.Errorf("expected not to get an error: %v", e)
-		}
+		t.Errorf("expected not to get an error: %v", e)
 	}
 }
 
@@ -124,13 +112,9 @@ func TestRunUnknownFails(t *testing.T) {
 	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case <-resultOut:
-		{
-			t.Errorf("expected not to get a result")
-		}
+		t.Errorf("expected not to get a result")
 	case e := <-errorOut:
-		{
-			t.Logf("got expected error %v", e)
-		}
+		t.Logf("got expected error %v", e)
 	}
 }
 
@@ -143,12 +127,8 @@ func TestRunFailProducesError(t *testing.T) {
 	RunMonitorScript(monitor, lastReport, resultOut, errorOut)
 	select {
 	case <-resultOut:
-		{
-			t.Errorf("expected not to get a result")
-		}
+		t.Errorf("expected not to get a result")
 	case e := <-errorOut:
-		{
-			t.Logf("got expected error %v", e)
-		}
+		t.Logf("got expected error %v", e)
 	}
 }

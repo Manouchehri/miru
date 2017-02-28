@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -49,6 +50,23 @@ type Report struct {
 	stateData          map[string]interface{} `json:"state"`
 }
 
+// NewReport is the constructor function used to produce a monitor's first report.
+// Arguments:
+// monitor: The monitor script that is being run.
+// Returns:
+// A new first Report with no significant data.
+func NewReport(monitor Monitor) Report {
+	return Report{
+		id:                 -1,
+		createdBy:          monitor.ID(),
+		createdAt:          time.Now(),
+		changeSignificance: NoChange,
+		messageToAdmin:     "first run",
+		checksum:           "",
+		stateData:          map[string]interface{}{},
+	}
+}
+
 // FindLastReportForMonitor looks up the last Report output by a monitor script.
 // Arguments:
 // db: A database connection.
@@ -69,6 +87,18 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 		return Report{}, decodeErr
 	}
 	return r, nil
+}
+
+// String converts the report to a JSON string.
+// Returns:
+// The report encoded to JSON in a string.
+func (r Report) String() string {
+	encoded, encodeErr := json.Marshal(r)
+	if encodeErr != nil {
+		fmt.Println("couldn't encode report to json", encodeErr)
+		return "{}"
+	}
+	return string(encoded)
 }
 
 // ID is a getter function for the Report's unique identifier.
@@ -99,6 +129,35 @@ func (r Report) Message() string {
 // The checksum of the monitored site's significant content.
 func (r Report) Checksum() string {
 	return r.checksum
+}
+
+// SetChange is a setter function that sets the recorded significance of a site's last change.
+// Arguments:
+// change: The signficance of the change seen.
+func (r *Report) SetChange(change Importance) {
+	r.changeSignificance = change
+}
+
+// SetMessage is a setter function that sets the message to an administrator in a report.
+// Arguments:
+// message: The message to set.
+func (r *Report) SetMessage(message string) {
+	r.messageToAdmin = message
+}
+
+// SetChecksum is a setter function that sets the checksum of the data inspected.
+// Arguments:
+// checksum: The new site data's checksum.
+func (r *Report) SetChecksum(checksum string) {
+	r.checksum = checksum
+}
+
+// SetState is a setter function for the report's state, which is data that it wants to communicate
+// back to itself in successive runs.
+// Arguments:
+// state: The new state data.
+func (r *Report) SetState(state map[string]interface{}) {
+	r.stateData = state
 }
 
 // Save creates a new Report in the database for an admin to view later and to be
