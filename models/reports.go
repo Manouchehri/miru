@@ -91,6 +91,7 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 	if err != nil {
 		return Report{}, err
 	}
+	fmt.Println("----- READ STATE DATA", stateData)
 	decodeErr := json.Unmarshal([]byte(stateData), &r.stateData)
 	if decodeErr != nil {
 		return Report{}, decodeErr

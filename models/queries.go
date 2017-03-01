@@ -212,5 +212,5 @@ const QFindLastReportForMonitor = `
 select id, created_at, change_significance, message_to_admin, checksum, state_data
 from reports
 where created_by = $1
-order by created_at desc
+order by id desc
 limit 1;`
