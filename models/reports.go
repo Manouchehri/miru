@@ -41,13 +41,22 @@ func (i Importance) String() string {
 // changes on the site being monitored. The stateData (state in JSON) field can be
 // used by monitor scripts to include any extra data that might be useful to them.
 type Report struct {
-	id                 int                    `json:"-"`
-	createdBy          int                    `json:"-"`
-	createdAt          time.Time              `json:"-"`
-	changeSignificance Importance             `json:"lastChangeSignificance"`
-	messageToAdmin     string                 `json:"message"`
-	checksum           string                 `json:"checksum"`
-	stateData          map[string]interface{} `json:"state"`
+	id                 int
+	createdBy          int
+	createdAt          time.Time
+	changeSignificance Importance
+	messageToAdmin     string
+	checksum           string
+	stateData          map[string]interface{}
+}
+
+// encodableReport is a private struct that contains public elements, which allows
+// us to JSON encode the data that we need to write as input to monitor scripts.
+type encodableReport struct {
+	Change   Importance             `json:"lastChangeSignificance"`
+	Message  string                 `json:"message"`
+	Checksum string                 `json:"checksum"`
+	State    map[string]interface{} `json:"state"`
 }
 
 // NewReport is the constructor function used to produce a monitor's first report.
@@ -93,7 +102,13 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 // Returns:
 // The report encoded to JSON in a string.
 func (r Report) String() string {
-	encoded, encodeErr := json.Marshal(r)
+	encodable := encodableReport{
+		Change:   r.changeSignificance,
+		Message:  r.messageToAdmin,
+		Checksum: r.checksum,
+		State:    r.stateData,
+	}
+	encoded, encodeErr := json.Marshal(encodable)
 	if encodeErr != nil {
 		fmt.Println("couldn't encode report to json", encodeErr)
 		return "{}"
