@@ -37,6 +37,31 @@ func NewArchiver(email string, passwordHash string) Archiver {
 	}
 }
 
+// ListArchivers obtains a list of all archivers registered in the system.
+// Arguments:
+// db: A database connection.
+// Returns:
+// An array of registered archivers and an error if reading from the database
+// encounters an error.
+func ListArchivers(db *sql.DB) ([]Archiver, error) {
+	archivers := []Archiver{}
+	rows, err := db.Query(QListArchivers)
+	if err != nil {
+		return archivers, err
+	}
+	for rows.Next() {
+		a := Archiver{}
+		err = rows.Scan(
+			&a.id, &a.madeAdminBy, &a.isAdmin, &a.emailAddress,
+			&a.passwordHash, &a.loggedInFrom, &a.loggedInAt)
+		if err != nil {
+			break
+		}
+		archivers = append(archivers, a)
+	}
+	return archivers, err
+}
+
 // FindArchiver attempts to find an archiver in the database with a given id.
 // Arguments:
 // db: A database connection.
