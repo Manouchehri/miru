@@ -96,6 +96,7 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 	if decodeErr != nil {
 		return Report{}, decodeErr
 	}
+	r.createdBy = monitor.ID()
 	return r, nil
 }
 
