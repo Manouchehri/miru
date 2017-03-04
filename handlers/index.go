@@ -3,6 +3,7 @@ package handlers
 import (
 	"../config"
 
+	"fmt"
 	"html/template"
 	"net/http"
 	"path"
@@ -31,8 +32,12 @@ func NewIndexHandler(cfg *config.Config) IndexHandler {
 // res: Provided by the net/http server.
 // req: Provided by the net/http server.
 func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	t, loadErr := template.ParseFiles(path.Join(h.cfg.TemplateDir, indexPage))
+	t, loadErr := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, indexPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if loadErr != nil {
+		fmt.Println("failed to load template", loadErr)
 		InternalError(res, req)
 		return
 	}
