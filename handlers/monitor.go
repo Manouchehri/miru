@@ -156,7 +156,10 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		BadRequest(res, req)
 		return
 	}
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, uploadPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, uploadPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		InternalError(res, req)
 		return

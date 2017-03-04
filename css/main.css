@@ -23,7 +23,7 @@ label {
     margin-bottom: 5px;
 }
 
-input[type=text], input[type=password] {
+input[type=text], input[type=password], input[type=number] {
     line-height: 2.2em;
     width: 250px;
     border: 1px solid #cdcdcd;
