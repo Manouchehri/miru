@@ -1,28 +1,42 @@
  <!DOCTYPE html>
 <html>
-  <head>
-    <title>Miru Website Monitor</title>
-  </head>
+  {{template "head" .}}
   <body>
-    <table>
-      <tr>
-        <th>Monitor ID</th>
-        <th>Script Path</th>
-        <th>Last Ran</th>
-        <th>Site Change</th>
-        <th>Checksum</th>
-        <th>Message</th>
-      </tr>
-      {{range .Reports}}
-      <tr>
-        <td>{{.MonitorID}}</td>
-        <td>{{.ScriptPath}}</td>
-        <td>{{.LastRan}}</td>
-        <td>{{.ChangeSignificance}}</td>
-        <td>{{.Checksum}}</td>
-        <td>{{.Message}}</td>
-      </tr>
-      {{end}}
-    </table>
+    {{template "nav" .}}
+    <div class="content">
+      <h1>Reports from monitors</h1>
+      <div id="monitorreports">
+        {{range .Reports}}
+        <table class="report">
+          <tbody>
+            <tr class="field">
+              <td class="reportkey">Monitor ID:</td>
+              <td class="reportvalue">{{.MonitorID}}</td>
+            </tr>
+            <tr class="field">
+              <td class="reportkey">Script path:</td>
+              <td class="reportvalue">{{.ScriptPath}}</td>
+            </tr>
+            <tr class="field">
+              <td class="reportkey">Last ran at:</td>
+              <td class="reportvalue">{{.LastRan}}</td>
+            </tr>
+            <tr class="field">
+              <td class="reportkey">Site change:</td>
+              <td class="reportvalue">{{.ChangeSignificance}}</td>
+            </tr>
+            <tr class="field">
+              <td class="reportkey">Checksum:</td>
+              <td class="reportvalue">{{.Checksum}}</td>
+            </tr>
+            <tr class="field">
+              <td class="reportkey">Message:</td>
+              <td class="reportvalue">{{.Message}}</td>
+            </tr>
+          </tbody>
+        </table>
+        {{end}}
+      </div>
+    </div>
   </body>
 </html>

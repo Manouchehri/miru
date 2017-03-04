@@ -88,7 +88,10 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		}
 	}
 	// Serve the page with the data about monitors and their recent reports.
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, reportsPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, reportsPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Error parsing reports page template", err)
 		InternalError(res, req)
