@@ -59,7 +59,10 @@ func NewRegisterHandler(cfg *config.Config, db *sql.DB) RegisterHandler {
 // req: Provided by the net/http server, contains information about the request.
 func (h RegisterPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, registerPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, registerPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		InternalError(res, req)
 		return
