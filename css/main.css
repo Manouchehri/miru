@@ -54,6 +54,43 @@ form div {
     padding-bottom: 15px;
 }
 
+table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+}
+
+tbody tr:nth-child(even) {
+    background-color: rgb(235, 251, 221);
+}
+
+tbody tr {
+    height: 30px
+}
+
+td {
+    padding: 10px;
+    font-family: 'Source Sans Pro', sans-serif;
+    font-size: 16px;
+}
+
+th {
+    font-family: 'Open Sans', sans-serif;
+    min-width: 120px;
+    border-bottom: 1px solid #dedede;
+}
+
+
+/*
+tr td:first-child{
+    padding-left: 10px;
+}
+
+tr td:last-child{
+    padding-right: 10px;
+}
+*/
+
 .content {
     width: 60%;
     margin-left: auto;

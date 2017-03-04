@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Miru Website Monitor</title>
-  </head>
+  {{template "head" .}}
   <body>
-    <table>
-      <tr>
-        <th>Requested By</th>
-        <th>Site Address</th>
-        <th>Instructions Provided</th>
-        <th></th>
-        <th></th>
-      </tr>
-      {{range .Requests}}
-      <tr>
-        <td>{{.MadeBy}}</td>
-        <td>{{.URL}}</td>
-        <td>{{.Instructions}}</td>
-        <td><a href="/monitor?id={{.RequestID}}">Approve</a></td>
-        <td><a href="#" onclick="reject({{.RequestID}})">Reject</a></td>
-      </tr>
-      {{end}}
-    </table>
+    {{template "nav" .}}
+    <div class="content">
+      <h1>Pending monitor requests</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Requested By</th>
+            <th>Site Address</th>
+            <th>Instructions Provided</th>
+            <th></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Requests}}
+          <tr>
+            <td>{{.MadeBy}}</td>
+            <td>{{.URL}}</td>
+            <td>{{.Instructions}}</td>
+            <td><a href="/monitor?id={{.RequestID}}">Approve</a></td>
+            <td><a href="#" onclick="reject({{.RequestID}})">Reject</a></td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
     <script>
 function reject(id) {
   alert('NOT IMPLEMENTED\nRejecting request ID: ' + id)
