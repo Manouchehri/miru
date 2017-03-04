@@ -1,13 +1,34 @@
 body {
     margin: 0;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Open Sans', sans-serif;
+}
+
+p, li, a {
+    font-size: 18px;
+}
+
+a, a:visited {
+    color: #1B70E0;
+    text-decoration: none;
+}
+
+.content {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #topnav {
+    font-family: 'Open Sans', sans-serif;
     width: 100%;
-    height: 45px;
+    height: 55px;
     display: block;
     background-color: #212121;
-    padding-top: 15px;
+    padding-top: 5px;
 }
 
 #topnav a {
@@ -21,8 +42,8 @@ body {
 }
 
 #navbuttons {
-    padding-top: 7px;
     float: right;
+    padding-top: 10px;
 }
 
 #navbuttons a {
@@ -32,10 +53,4 @@ body {
 
 #navbuttons a:last-child {
     margin-right: 0;
-}
-
-.content {
-    width: 60%;
-    margin-left: auto;
-    margin-right: auto;
 }
