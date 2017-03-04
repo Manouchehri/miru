@@ -69,6 +69,7 @@ func main() {
 	listRequests := handlers.NewListRequestsHandler(&cfg, db)
 	reports := handlers.NewReportPageHandler(&cfg, db)
 	listArchivers := handlers.NewArchiversListPageHandler(&cfg, db)
+	makeAdmin := handlers.NewMakeAdminHandler(db)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
@@ -81,6 +82,7 @@ func main() {
 	r.Handle("/listrequests", listRequests).Methods("GET")
 	r.Handle("/reports", reports).Methods("GET")
 	r.Handle("/archivers", listArchivers).Methods("GET")
+	r.Handle("/makeadmin", makeAdmin).Methods("POST")
 
 	http.Handle("/", r)
 	fmt.Println("Listening on", cfg.BindAddress)
