@@ -1,4 +1,41 @@
 body {
-    background-color: black;
-    color: white;
+    margin: 0;
+}
+
+#topnav {
+    width: 100%;
+    height: 45px;
+    display: block;
+    background-color: #212121;
+    padding-top: 15px;
+}
+
+#topnav a {
+    font-weight: 700;
+    font-size: 2.1em;
+}
+
+#topnav a, #topnav a:visited {
+    color: #dedede;
+    text-decoration: none;
+}
+
+#navbuttons {
+    padding-top: 7px;
+    float: right;
+}
+
+#navbuttons a {
+    font-size: 1.2em;
+    margin-right: 15px;
+}
+
+#navbuttons a:last-child {
+    margin-right: 0;
+}
+
+.content {
+    width: 60%;
+    margin-left: auto;
+    margin-right: auto;
 }
