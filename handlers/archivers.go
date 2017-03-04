@@ -92,7 +92,10 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 		})
 	}
 	// Serve the page with the data about archivers.
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, archiversPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, archiversPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Error parsing archivers page template", err)
 		InternalError(res, req)

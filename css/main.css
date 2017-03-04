@@ -80,17 +80,6 @@ th {
     border-bottom: 1px solid #dedede;
 }
 
-
-/*
-tr td:first-child{
-    padding-left: 10px;
-}
-
-tr td:last-child{
-    padding-right: 10px;
-}
-*/
-
 .content {
     width: 60%;
     margin-left: auto;

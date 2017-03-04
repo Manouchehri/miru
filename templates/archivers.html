@@ -1,27 +1,33 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Miru Website Monitor</title>
-  </head>
+  {{template "head" .}}
   <body>
-    <table>
-      <tr>
-        <th>Email Address</th>
-        <th>Is An Administrator</th>
-        <th></th>
-      </tr>
-      {{range .Archivers}}
-      <tr>
-        <td>{{.Email}}</td>
-        <td>{{.IsAdmin}}</td>
-        <td>
-          <form method="POST" action="/makeadmin">
-            <input type="hidden" name="archiverID" value="{{.ID}}" />
-            <input type="submit" id="makeAdmin" value="Make Admin" />
-          </form>
-        </td>
-      </tr>
-      {{end}}
-    </table>
+    {{template "nav" .}}
+    <div class="content">
+      <h1>List of registered archivers</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Email Address</th>
+            <th>Is An Administrator</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .Archivers}}
+          <tr>
+            <td>{{.Email}}</td>
+            <td>{{.IsAdmin}}</td>
+            <td>
+              <form method="POST" action="/makeadmin">
+                <input type="hidden" name="archiverID" value="{{.ID}}" />
+                <input type="submit" id="makeAdmin" value="Make Admin" />
+              </form>
+            </td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
   </body>
 </html>
