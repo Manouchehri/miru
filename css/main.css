@@ -1,3 +1,15 @@
+/* Pallet
+
+Background: white
+Nav bar: #212121
+Text: #333
+Links: #1b70e0
+Borders: #cdcdcd
+Buttons (success): #8CB56B
+Buttons (failure): #E84A5F
+Highlight (table rows): #E84A5F
+*/
+
 body {
     margin: 0;
     font-family: 'Source Sans Pro', sans-serif;
@@ -36,7 +48,7 @@ textarea {
     width: 260px;
     height: 100px;
     border-radius: 4px;
-    border: 1px solid #dedede;
+    border: 1px solid #cdcdcd;
 }
 
 input[type=submit] {
@@ -77,7 +89,7 @@ td {
 th {
     font-family: 'Open Sans', sans-serif;
     min-width: 120px;
-    border-bottom: 1px solid #dedede;
+    border-bottom: 1px solid #cdcdcd;
 }
 
 .content {
