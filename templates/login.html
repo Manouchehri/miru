@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Miru Website Monitor</title>
-  </head>
+  {{template "head"}}
   <body>
-    <form method="POST" action="/login">
-      <div>
-        <input type="text" name="email" id="email" placeholder="Email address" />
-      </div>
-      <div>
-        <input type="password" name="password" id="password" placeholder="Password" />
-      </div>
-      <div>
-        <input type="submit" id="loginbutton" value="Login" />
-      </div>
-    </form>
+    {{template "nav"}}
+    <div class="content">
+      <h1>Login</h1>
+      <form method="POST" action="/login">
+        <div>
+          <label for="email">Email address</label>
+          <input type="text" name="email" id="email" />
+        </div>
+        <div>
+          <label for="password">Password</label>
+          <input type="password" name="password" id="password" />
+        </div>
+        <div>
+          <input type="submit" id="loginbutton" value="Login" />
+        </div>
+      </form>
+    </div>
   </body>
 </html>

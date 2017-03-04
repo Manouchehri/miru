@@ -57,7 +57,10 @@ func NewLoginHandler(cfg *config.Config, db *sql.DB) LoginHandler {
 // req: Provided by the net/http server, contains information about the request.
 func (h LoginPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, loginPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, loginPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		InternalError(res, req)
 		return

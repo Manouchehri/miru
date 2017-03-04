@@ -1,6 +1,7 @@
 body {
     margin: 0;
     font-family: 'Source Sans Pro', sans-serif;
+    color: #333;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -14,6 +15,36 @@ p, li, a {
 a, a:visited {
     color: #1B70E0;
     text-decoration: none;
+}
+
+label {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+input[type=text], input[type=password] {
+    line-height: 2.2em;
+    width: 250px;
+    border: 1px solid #cdcdcd;
+    border-radius: 4px;
+    padding-left: 10px;
+    font-size: 14px;
+}
+
+input[type=submit] {
+    height: 35px;
+    background-color: #8CB56B;
+    border: none;
+    width: 263px;
+    border-radius: 4px;
+    font-size: 1.0em;
+    font-weight: 600;
+    color: #fff;
+}
+
+form div {
+    padding-bottom: 15px;
 }
 
 .content {
