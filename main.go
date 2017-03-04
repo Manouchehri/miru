@@ -84,6 +84,10 @@ func main() {
 	r.Handle("/archivers", listArchivers).Methods("GET")
 	r.Handle("/makeadmin", makeAdmin).Methods("POST")
 
+	r.PathPrefix("/js/").Handler(
+		http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
+	r.PathPrefix("/css/").Handler(
+		http.StripPrefix("/css/", http.FileServer(http.Dir("css"))))
 	http.Handle("/", r)
 	fmt.Println("Listening on", cfg.BindAddress)
 	http.ListenAndServe(cfg.BindAddress, nil)
