@@ -97,7 +97,10 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 		return
 	}
 	// Serve the page.
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, requestPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, requestPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		InternalError(res, req)
 		return
@@ -195,7 +198,10 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 		})
 	}
 	// Serve the listing page.
-	t, err := template.ParseFiles(path.Join(h.cfg.TemplateDir, requestListPage))
+	t, err := template.ParseFiles(
+		path.Join(h.cfg.TemplateDir, requestListPage),
+		path.Join(h.cfg.TemplateDir, headTemplate),
+		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Could not load template", err)
 		InternalError(res, req)

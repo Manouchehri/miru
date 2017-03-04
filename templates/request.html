@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Miru Website Monitor</title>
-  </head>
+  {{template "head" .}}
   <body>
-    <form method="POST" action="/request">
-      <div>
-        <input type="text" id="url" name="url" placeholder="Website address" />
-      </div>
-      <div>
-        <textarea id="instructions" name="instructions" cols="80" rows="10">
-Please write any instructions that will help us identify what part of
-the site needs to be inspected and what we may be able to look for to
-determine if a change has been made.
-        </textarea>
-      </div>
-      <div>
-        <input type="submit" id="makerequest" value="Submit" />
-      </div>
-    </form>
+    {{template "nav" .}}
+    <div class="content">
+      <h1>Ask us to monitor a site</h1>
+      <form method="POST" action="/request">
+        <div>
+          <label for="url">Website address</label>
+          <input type="text" id="url" name="url" />
+        </div>
+        <div>
+          <label for="instructions">Instructions to help us scrape the site</label>
+          <textarea id="instructions" name="instructions" cols="80" rows="10"></textarea>
+        </div>
+        <div>
+          <input type="submit" id="makerequest" value="Submit" />
+        </div>
+      </form>
+    </div>
   </body>
 </html>
