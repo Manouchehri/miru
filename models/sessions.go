@@ -16,6 +16,8 @@ const sessionLifetime time.Duration = 1 * time.Hour
 // session IDs.
 const sessionTokenLength uint = 16
 
+var errSessionExpired = errors.New("session is expired")
+
 // Session contains information about a user's authenticated session.
 // Unlike other database entities, a session's ID is a string of
 // cryptographically secure random bytes, encoded as hex.
@@ -60,6 +62,9 @@ func FindSession(db *sql.DB, id string) (Session, error) {
 		return Session{}, err
 	}
 	s.id = id
+	if s.IsExpired() {
+		return Session{}, errSessionExpired
+	}
 	return s, nil
 }
 
@@ -82,6 +87,13 @@ func (s Session) Expires() time.Time {
 // The ID of the archiver that owns the session.
 func (s Session) Owner() int {
 	return s.owner
+}
+
+// IsExpired checks if the session has expired.
+// Returns:
+// True if the session should be considered void.
+func (s Session) IsExpired() bool {
+	return s.expiresAt.After(time.Now())
 }
 
 // Save stores a new session token in the database after making a secure token.
