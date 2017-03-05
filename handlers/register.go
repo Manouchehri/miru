@@ -88,6 +88,11 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		BadRequest(res, req)
 		return
 	}
+	if !auth.DefaultPasswordComplexityChecker().IsPasswordSecure(password) {
+		fmt.Println("Password is not strong enough")
+		BadRequest(res, req)
+		return
+	}
 	archiver, _ := models.FindArchiverByEmail(h.db, email)
 	if archiver.Email() != "" {
 		fmt.Println("Email address taken")
