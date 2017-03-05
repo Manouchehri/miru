@@ -91,6 +91,14 @@ th {
     border-bottom: 1px solid #cdcdcd;
 }
 
+ul.linklist {
+    list-style: none;
+}
+
+ul.linklist li {
+    margin-bottom: 10px;
+}
+
 .content {
     width: 60%;
     margin-left: auto;

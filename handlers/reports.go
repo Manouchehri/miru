@@ -97,5 +97,9 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, struct{ Reports []Data }{data})
+	t.Execute(res, struct {
+		Reports     []Data
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{data, true, true})
 }

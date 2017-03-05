@@ -1,8 +1,11 @@
 package handlers
 
 import (
+	"../auth"
 	"../config"
+	"../models"
 
+	"database/sql"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -16,14 +19,16 @@ const indexPage string = "index.html"
 // page to users.
 type IndexHandler struct {
 	cfg *config.Config
+	db  *sql.DB
 }
 
 // NewIndexHandler is the constructor function for IndexHandler.
 // Arguments:
 // cfg: A reference to the application's global configuration.
-func NewIndexHandler(cfg *config.Config) IndexHandler {
+func NewIndexHandler(cfg *config.Config, db *sql.DB) IndexHandler {
 	return IndexHandler{
 		cfg: cfg,
+		db:  db,
 	}
 }
 
@@ -32,6 +37,16 @@ func NewIndexHandler(cfg *config.Config) IndexHandler {
 // res: Provided by the net/http server.
 // req: Provided by the net/http server.
 func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	loggedIn := false
+	isAdmin := false
+	cookie, err := req.Cookie(auth.SessionCookieName)
+	if err == nil {
+		activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
+		if err == nil {
+			loggedIn = true
+			isAdmin = activeUser.IsAdmin()
+		}
+	}
 	t, loadErr := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, indexPage),
 		path.Join(h.cfg.TemplateDir, headTemplate),
@@ -41,5 +56,8 @@ func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, nil)
+	t.Execute(res, struct {
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{loggedIn, isAdmin})
 }

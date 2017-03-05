@@ -3,8 +3,17 @@
     <div class="content">
     <a href="/">Miru</a>
     <div id="navbuttons">
+        {{if .LoggedIn}}
+            {{if .UserIsAdmin}}
+            <a href="/adminpanel">Admin Panel</a>
+            {{else}}
+            <a href="/request">Request</a>
+            {{end}}
+        <a href="/logout">Logout</a>
+        {{else}}
         <a href="/login">Login</a>
         <a href="/register">Register</a>
+        {{end}}
     </div>
     </div>
 </nav>

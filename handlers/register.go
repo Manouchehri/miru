@@ -67,7 +67,10 @@ func (h RegisterPageHandler) ServeHTTP(
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, nil)
+	t.Execute(res, struct {
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{false, false})
 }
 
 // ServeHTTP handles POST requests containing an archiver's registration data.

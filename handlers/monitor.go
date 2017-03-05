@@ -38,6 +38,7 @@ type UploadScriptHandler struct {
 // administrators that they can use to upload new monitor scripts.
 type UploadPageHandler struct {
 	cfg *config.Config
+	db  *sql.DB
 }
 
 // NewUploadScriptHandler is the constructor function for UploadScriptHandler.
@@ -58,9 +59,10 @@ func NewUploadScriptHandler(c *config.Config, db *sql.DB) UploadScriptHandler {
 // cfg: A reference to the application's global configuration.
 // Returns:
 // A new UploadPageHandler that can be bound to a router.
-func NewUploadPageHandler(cfg *config.Config) UploadPageHandler {
+func NewUploadPageHandler(cfg *config.Config, db *sql.DB) UploadPageHandler {
 	return UploadPageHandler{
 		cfg: cfg,
+		db:  db,
 	}
 }
 
@@ -135,7 +137,7 @@ func (h UploadScriptHandler) ServeHTTP(
 		InternalError(res, req)
 		return
 	}
-	res.Write([]byte("success"))
+	http.Redirect(res, req, "/listrequests", http.StatusSeeOther)
 }
 
 // ServeHTTP serves a page that administrators can use to upload new
@@ -144,6 +146,17 @@ func (h UploadScriptHandler) ServeHTTP(
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
 func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	// Check that the request is coming from an authenticated archiver.
+	cookie, err := req.Cookie(auth.SessionCookieName)
+	if err != nil {
+		BadRequest(res, req)
+		return
+	}
+	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
+	if err != nil {
+		BadRequest(res, req)
+		return
+	}
 	requestIDs, found := req.URL.Query()["id"]
 	if !found || len(requestIDs) == 0 {
 		fmt.Println("Need a request id")
@@ -164,12 +177,11 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		InternalError(res, req)
 		return
 	}
-	data := struct {
-		CreatedFor int
-	}{
-		requestID,
-	}
-	t.Execute(res, data)
+	t.Execute(res, struct {
+		CreatedFor  int
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{requestID, true, activeUser.IsAdmin()})
 }
 
 // generateUniqueFilename produces a filename that is guaranteed to be unique.

@@ -57,8 +57,8 @@ func main() {
 	}()
 
 	r := mux.NewRouter()
-	index := handlers.NewIndexHandler(&cfg)
-	monitorPage := handlers.NewUploadPageHandler(&cfg)
+	index := handlers.NewIndexHandler(&cfg, db)
+	monitorPage := handlers.NewUploadPageHandler(&cfg, db)
 	uploadScript := handlers.NewUploadScriptHandler(&cfg, db)
 	registerPage := handlers.NewRegisterPageHandler(&cfg)
 	register := handlers.NewRegisterHandler(&cfg, db)
@@ -70,6 +70,7 @@ func main() {
 	reports := handlers.NewReportPageHandler(&cfg, db)
 	listArchivers := handlers.NewArchiversListPageHandler(&cfg, db)
 	makeAdmin := handlers.NewMakeAdminHandler(db)
+	adminPanel := handlers.NewAdminPanelPageHandler(&cfg, db)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
@@ -83,6 +84,7 @@ func main() {
 	r.Handle("/reports", reports).Methods("GET")
 	r.Handle("/archivers", listArchivers).Methods("GET")
 	r.Handle("/makeadmin", makeAdmin).Methods("POST")
+	r.Handle("/adminpanel", adminPanel).Methods("GET")
 
 	r.PathPrefix("/js/").Handler(
 		http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))

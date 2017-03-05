@@ -91,7 +91,7 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 		BadRequest(res, req)
 		return
 	}
-	_, err = models.FindSessionOwner(h.db, cookie.Value)
+	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil {
 		BadRequest(res, req)
 		return
@@ -105,7 +105,10 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, nil)
+	t.Execute(res, struct {
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{true, activeUser.IsAdmin()})
 }
 
 // ServeHTTP handles a form upload containing a request to have a site monitored.
@@ -207,5 +210,9 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 		InternalError(res, req)
 		return
 	}
-	t.Execute(res, struct{ Requests []Data }{pendingRequests})
+	t.Execute(res, struct {
+		Requests    []Data
+		LoggedIn    bool
+		UserIsAdmin bool
+	}{pendingRequests, true, archiver.IsAdmin()})
 }
