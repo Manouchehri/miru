@@ -71,6 +71,7 @@ func main() {
 	listArchivers := handlers.NewArchiversListPageHandler(&cfg, db)
 	makeAdmin := handlers.NewMakeAdminHandler(db)
 	adminPanel := handlers.NewAdminPanelPageHandler(&cfg, db)
+	logout := handlers.NewLogoutHandler(db)
 	r.Handle("/", index)
 	r.Handle("/monitor", monitorPage).Methods("GET")
 	r.Handle("/monitor", uploadScript).Methods("POST")
@@ -85,6 +86,7 @@ func main() {
 	r.Handle("/archivers", listArchivers).Methods("GET")
 	r.Handle("/makeadmin", makeAdmin).Methods("POST")
 	r.Handle("/adminpanel", adminPanel).Methods("GET")
+	r.Handle("/logout", logout).Methods("GET")
 
 	r.PathPrefix("/js/").Handler(
 		http.StripPrefix("/js/", http.FileServer(http.Dir("js"))))
