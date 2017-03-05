@@ -77,13 +77,13 @@ func (h UploadScriptHandler) ServeHTTP(
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Extract inputs from the form.
@@ -94,20 +94,20 @@ func (h UploadScriptHandler) ServeHTTP(
 	ext, ftErr := filetypeExtension(filetype)
 	if ftErr != nil || parseErr1 != nil || parseErr2 != nil || parseErr3 != nil {
 		fmt.Println(ftErr)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
 		return
 	}
 	// Find the request that is being fulfilled to establish relational data.
 	request, findErr := models.FindRequest(h.db, requestID)
 	if findErr != nil {
 		fmt.Println("no such request", requestID, "ERROR", findErr)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
 		return
 	}
 	file, _, openErr := req.FormFile("script")
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errCreateFile, true, true)
 		return
 	}
 	defer file.Close()
@@ -116,7 +116,7 @@ func (h UploadScriptHandler) ServeHTTP(
 	toDisk, openErr := os.Create(filename)
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errCreateFile, true, true)
 		return
 	}
 	defer toDisk.Close()
@@ -134,7 +134,7 @@ func (h UploadScriptHandler) ServeHTTP(
 	saveErr := monitor.Save(h.db)
 	if saveErr != nil {
 		fmt.Println(saveErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	http.Redirect(res, req, "/listrequests", http.StatusSeeOther)
@@ -149,24 +149,24 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	requestIDs, found := req.URL.Query()["id"]
 	if !found || len(requestIDs) == 0 {
 		fmt.Println("Need a request id")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errors.New("missing request id url parameter"), true, activeUser.IsAdmin())
 		return
 	}
 	requestID, parseErr := strconv.Atoi(requestIDs[0])
 	if parseErr != nil {
 		fmt.Println("Need a request valid id")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errGenericInvalidData, true, activeUser.IsAdmin())
 		return
 	}
 	t, err := template.ParseFiles(
@@ -174,7 +174,7 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		path.Join(h.cfg.TemplateDir, headTemplate),
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

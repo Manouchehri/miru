@@ -62,7 +62,7 @@ func (h LoginPageHandler) ServeHTTP(
 		path.Join(h.cfg.TemplateDir, headTemplate),
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, false, false)
 		return
 	}
 	t.Execute(res, struct {
@@ -85,12 +85,12 @@ func (h LoginHandler) ServeHTTP(
 	archiver, findErr := models.FindArchiverByEmail(h.db, email)
 	if findErr != nil {
 		fmt.Println("Invalid email address")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errInvalidCredentials, false, false)
 		return
 	}
 	if !auth.IsPasswordCorrect(password, archiver.Password()) {
 		fmt.Println("Incorrect password")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errInvalidCredentials, false, false)
 		return
 	}
 	// Establish a session.
@@ -98,7 +98,7 @@ func (h LoginHandler) ServeHTTP(
 	saveErr := session.Save(h.db)
 	if saveErr != nil {
 		fmt.Println("Error creating new session", saveErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
 		return
 	}
 	cookie := http.Cookie{

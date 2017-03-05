@@ -53,7 +53,7 @@ func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if loadErr != nil {
 		fmt.Println("failed to load template", loadErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, loggedIn, isAdmin)
 		return
 	}
 	t.Execute(res, struct {

@@ -64,7 +64,7 @@ func (h RegisterPageHandler) ServeHTTP(
 		path.Join(h.cfg.TemplateDir, headTemplate),
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, false, false)
 		return
 	}
 	t.Execute(res, struct {
@@ -85,18 +85,22 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if password != passwordRepeated {
 		fmt.Println("Passwords don't match")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errBadPassword, false, false)
 		return
 	}
 	if !auth.DefaultPasswordComplexityChecker().IsPasswordSecure(password) {
 		fmt.Println("Password is not strong enough")
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errBadPassword, false, false)
 		return
 	}
 	archiver, _ := models.FindArchiverByEmail(h.db, email)
+	// We don't want to tell users if an email address is taken so that it is
+	// impossible to enumerate registered accounts.
+	// TODO - When we have confirmation emails being sent, we should say that
+	// an email has been sent in both the case that the email is taken and
+	// in the case that it is not.
 	if archiver.Email() != "" {
-		fmt.Println("Email address taken")
-		BadRequest(res, req)
+		res.Write([]byte(fmt.Sprintf("Successfully registered %s", email)))
 		return
 	}
 	passwordHash := auth.SecurePassword(password)
@@ -104,7 +108,7 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	saveErr := archiver.Save(h.db)
 	if saveErr != nil {
 		fmt.Println("Failed to save new archiver", saveErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
 		return
 	}
 	res.Write([]byte(fmt.Sprintf("Successfully registered %s", email)))

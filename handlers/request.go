@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"errors"
+
 	"../auth"
 	"../config"
 	"../models"
@@ -67,7 +69,7 @@ func NewMakeRequestHandler(cfg *config.Config, db *sql.DB) MakeRequestHandler {
 	}
 }
 
-// ListRequestsHandler is the constructor function for a ListRequestsHandler.
+// NewListRequestsHandler is the constructor function for a ListRequestsHandler.
 // Arguments:
 // cfg: The application's global configuration.
 // db: A database connection.
@@ -88,12 +90,12 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	// Serve the page.
@@ -102,7 +104,7 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 		path.Join(h.cfg.TemplateDir, headTemplate),
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, activeUser.IsAdmin())
 		return
 	}
 	t.Execute(res, struct {
@@ -119,13 +121,13 @@ func (h MakeRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
 	fmt.Println("Archiver making a request:", archiver)
 	if err != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	// Extract data from the form.
@@ -133,7 +135,7 @@ func (h MakeRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 	instructions := req.FormValue("instructions")
 	parsedURL, parseErr := url.Parse(requstedURL)
 	if parseErr != nil {
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errors.New("please specify a valid url to monitor"), true, archiver.IsAdmin())
 		return
 	}
 	// Create a new request. We strip the query string from the URL since it:
@@ -144,7 +146,7 @@ func (h MakeRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 	request := models.NewRequest(archiver, parsedURL.String(), instructions)
 	saveErr := request.Save(h.db)
 	if saveErr != nil {
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, archiver.IsAdmin())
 		return
 	}
 	fmt.Println("Created request", request)
@@ -160,20 +162,20 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("No cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !archiver.IsAdmin() {
 		fmt.Println("Not admin", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Load all pending requests into an array of structs we can display in the page.
 	requests, err := models.ListPendingRequests(h.db)
 	if err != nil {
 		fmt.Println("Could not get requests", err)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -207,7 +209,7 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Could not load template", err)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

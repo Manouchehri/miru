@@ -26,7 +26,8 @@ type ArchiversListPageHandler struct {
 // MakeAdminHandler handles requests from administrators to promote an archiver to
 // have administrator privileges.
 type MakeAdminHandler struct {
-	db *sql.DB
+	cfg *config.Config
+	db  *sql.DB
 }
 
 // NewArchiversListPageHandler is the constructor function for a new ArchiversListPageHandler.
@@ -47,9 +48,10 @@ func NewArchiversListPageHandler(cfg *config.Config, db *sql.DB) ArchiversListPa
 // db: A database connection.
 // Returns:
 // A new MakeAdminHandler which can be bound to a router.
-func NewMakeAdminHandler(db *sql.DB) MakeAdminHandler {
+func NewMakeAdminHandler(cfg *config.Config, db *sql.DB) MakeAdminHandler {
 	return MakeAdminHandler{
-		db: db,
+		cfg: cfg,
+		db:  db,
 	}
 }
 
@@ -62,20 +64,20 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Load information about archivers.
 	archivers, findErr := models.ListArchivers(h.db)
 	if findErr != nil {
 		fmt.Println("Could not get archivers", findErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -98,7 +100,7 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Error parsing archivers page template", err)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {
@@ -117,13 +119,13 @@ func (h MakeAdminHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Extract the data submitted in the form.
@@ -132,21 +134,21 @@ func (h MakeAdminHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	id, parseErr := strconv.Atoi(archiverID)
 	if parseErr != nil {
 		fmt.Println("Invalid archiver ID", parseErr)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
 		return
 	}
 	// Try to promote the archiver selected.
 	archiver, findErr := models.FindArchiver(h.db, id)
 	if findErr != nil {
 		fmt.Println("No such archiver", id)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	archiver.MakeAdmin(activeUser)
 	updateErr := archiver.Update(h.db)
 	if updateErr != nil {
 		fmt.Println("Could not update archiver", updateErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	// Redirect back to the archivers list page.

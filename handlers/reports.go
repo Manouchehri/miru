@@ -47,20 +47,20 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Load information about existing monitors and the last report each generated.
 	monitors, findErr := models.ListMonitors(h.db)
 	if findErr != nil {
 		fmt.Println("Could not get monitors", findErr)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -94,7 +94,7 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Error parsing reports page template", err)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

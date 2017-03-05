@@ -40,13 +40,13 @@ func (h AdminPanelPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Requ
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
 		return
 	}
 	// Serve the admin panel page.
@@ -56,7 +56,7 @@ func (h AdminPanelPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Requ
 		path.Join(h.cfg.TemplateDir, navTemplate))
 	if err != nil {
 		fmt.Println("Failed to parse templates", err)
-		InternalError(res, req)
+		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

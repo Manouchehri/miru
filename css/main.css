@@ -99,6 +99,16 @@ ul.linklist li {
     margin-bottom: 10px;
 }
 
+ul#errors {
+    list-style: none;
+}
+
+ul#errors li {
+    padding: 20px;
+    background-color: rgb(255, 128, 144);
+    margin-bottom: 20px;
+}
+
 .content {
     width: 60%;
     margin-left: auto;
