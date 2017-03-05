@@ -35,20 +35,19 @@ label {
     margin-bottom: 5px;
 }
 
-input[type=text], input[type=password], input[type=number] {
+input[type=text], input[type=password], input[type=number], textarea {
     line-height: 2.2em;
     width: 250px;
     border: 1px solid #cdcdcd;
     border-radius: 4px;
     padding-left: 10px;
     font-size: 14px;
+    font-family: 'Source Sans Pro', sans-serif;
 }
 
 textarea {
     width: 260px;
     height: 100px;
-    border-radius: 4px;
-    border: 1px solid #cdcdcd;
 }
 
 input[type=submit] {
