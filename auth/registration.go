@@ -1,6 +1,10 @@
 package auth
 
-import auth "github.com/StratumSecurity/scryptauth"
+import (
+	"strings"
+
+	auth "github.com/StratumSecurity/scryptauth"
+)
 
 // PasswordComplexityChecker is used to test whether a given password is complex enough
 // to meet the application's security requirements.
@@ -67,4 +71,24 @@ func SecurePassword(password string) string {
 			[]byte(password), auth.DefaultHashConfiguration())
 	}
 	return string(hashed)
+}
+
+// IsEmailValid Does a simple check to make sure an email address is
+// formatted reasonably. Determining whether every character is valid is
+// infeasible, so we'll just make sure the address is formatted like:
+//   <thing>@<domain>.<tld>[.<tld2>[.<tld3>...]]
+// Arguments:
+// email: The email address to validate
+// Returns:
+// True if the address has the basic format of an email address, or else false.
+func IsEmailValid(email string) bool {
+	parts := strings.Split(email, "@")
+	if len(parts) != 2 {
+		return false
+	}
+	parts = strings.Split(parts[1], ".")
+	if len(parts) < 2 {
+		return false
+	}
+	return true
 }

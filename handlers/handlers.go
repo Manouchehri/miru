@@ -15,4 +15,5 @@ var (
 	errCreateFile         = errors.New("could not create a file for the monitor script")
 	errBadPassword        = errors.New("password and repeated password must match and contain " +
 		"at least one lowercase and uppercase letter, symbol, and number")
+	errInvalidEmail = errors.New("invalid email address")
 )

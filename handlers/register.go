@@ -93,6 +93,10 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		BadRequest(res, req, h.cfg, errBadPassword, false, false)
 		return
 	}
+	if !auth.IsEmailValid(email) {
+		BadRequest(res, req, h.cfg, errInvalidEmail, false, false)
+		return
+	}
 	archiver, _ := models.FindArchiverByEmail(h.db, email)
 	// We don't want to tell users if an email address is taken so that it is
 	// impossible to enumerate registered accounts.
