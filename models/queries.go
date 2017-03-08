@@ -171,6 +171,17 @@ select
 from sessions
 where id = $1;`
 
+// QFindSessionByOwnerEmail is an SQL query that finds a session token for a user given
+// their email address.
+const QFindSessionByOwnerEmail = `
+select S.id, S.owner, S.created_at, S.expires_at, S.ip_address
+from sessions S
+where exists(
+  select A.id
+  from archivers A
+  where S.owner = A.id
+    and A.email_address = $1);`
+
 // QSaveRequest is an SQL query that inserts a new request.
 const QSaveRequest = `
 insert into requests (

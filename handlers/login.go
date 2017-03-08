@@ -76,8 +76,7 @@ func (h LoginPageHandler) ServeHTTP(
 // Arguments:
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
-func (h LoginHandler) ServeHTTP(
-	res http.ResponseWriter, req *http.Request) {
+func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	email := req.FormValue("email")
 	password := req.FormValue("password")
@@ -92,6 +91,11 @@ func (h LoginHandler) ServeHTTP(
 		fmt.Println("Incorrect password")
 		BadRequest(res, req, h.cfg, errInvalidCredentials, false, false)
 		return
+	}
+	// Delete an old session if one exists.
+	oldSession, findErr := models.FindSessionByOwnerEmail(h.db, email)
+	if findErr == nil {
+		oldSession.Delete(h.db)
 	}
 	// Establish a session.
 	session := models.NewSession(archiver, req.RemoteAddr)

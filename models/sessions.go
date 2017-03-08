@@ -62,8 +62,22 @@ func FindSession(db *sql.DB, id string) (Session, error) {
 		return Session{}, err
 	}
 	s.id = id
-	if s.IsExpired() {
-		return Session{}, errSessionExpired
+	return s, nil
+}
+
+// FindSessionByOwnerEmail attempts to find a session owned by an archiver.
+// Arguments:
+// db: A database connection.
+// email: The email address of an archiver.
+// Returns:
+// A session if one exists for the archiver, and an error if one occurs
+// reading from the database.
+func FindSessionByOwnerEmail(db *sql.DB, email string) (Session, error) {
+	s := Session{}
+	err := db.QueryRow(QFindSessionByOwnerEmail, email).Scan(
+		&s.id, &s.owner, &s.createdAt, &s.expiresAt, &s.ipAddress)
+	if err != nil {
+		return Session{}, err
 	}
 	return s, nil
 }
