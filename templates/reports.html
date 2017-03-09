@@ -7,34 +7,50 @@
       <h1>Reports from monitors</h1>
       <div id="monitorreports">
         {{range .Reports}}
-        <table class="report">
-          <tbody>
-            <tr class="field">
-              <td class="reportkey">Monitor ID:</td>
-              <td class="reportvalue">{{.MonitorID}}</td>
-            </tr>
-            <tr class="field">
-              <td class="reportkey">Script path:</td>
-              <td class="reportvalue">{{.ScriptPath}}</td>
-            </tr>
-            <tr class="field">
-              <td class="reportkey">Last ran at:</td>
-              <td class="reportvalue">{{.LastRan}}</td>
-            </tr>
-            <tr class="field">
-              <td class="reportkey">Site change:</td>
-              <td class="reportvalue">{{.ChangeSignificance}}</td>
-            </tr>
-            <tr class="field">
-              <td class="reportkey">Checksum:</td>
-              <td class="reportvalue">{{.Checksum}}</td>
-            </tr>
-            <tr class="field">
-              <td class="reportkey">Message:</td>
-              <td class="reportvalue">{{.Message}}</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="reportsummary">
+          <div class="oneliner">
+            <div class="change">
+              {{.ChangeSignificance}}
+            </div>
+            <div class="url">
+              {{.URL}}
+            </div>
+          </div>
+          <div class="moreinfo">
+            <div class="row">
+              <div class="field">
+                Last ran at:
+              </div>
+              <div class="value">
+                {{.LastRan}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                Checksum:
+              </div>
+              <div class="value">
+                {{.Checksum}}
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                Script path:
+              </div>
+              <div class="value">
+                {{.ScriptPath}}
+              </div>
+            </div>
+            <div class="row">
+              <p>
+                Message:
+              </p>
+              <p>
+                {{.Message}}
+              </p>
+            </div>
+          </div>
+        </div>
         {{end}}
         <script src="/js/reports.js"></script>
       </div>

@@ -110,6 +110,50 @@ ul#errors li {
     margin-bottom: 20px;
 }
 
+div.reportsummary {
+    margin-bottom: 30px;
+}
+
+div.reportsummary div.oneliner div.change {
+    float: left;
+    width: 20%;
+}
+
+div.reportsummary div.oneliner div.url {
+    width: 80%;
+}
+
+div.moreinfo {
+    font-size: 14px;
+}
+
+div.moreinfo div.row div.field {
+    float: left;
+    width: 20%;
+}
+
+div.moreinfo div.row div.value {
+    width: 80%;
+    float: right;
+}
+
+div.moreinfo div.row p:nth-child(1) {
+    font-size: 14px;
+}
+
+div.moreinfo div.row p:nth-child(2) {
+    background-color: rgb(245, 245, 245);
+    font-size: 14px;
+    margin-left: 30px;
+    margin-top: -5px;
+    padding-top: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 10px;
+    max-height: 100px;
+    overflow: scroll;
+}
+
 .content {
     width: 60%;
     margin-left: auto;

@@ -136,6 +136,12 @@ func (m Monitor) ScriptPath() string {
 	return m.scriptPath
 }
 
+// CreatedFor is a getter that retrieves the ID of the request that the
+// monitor was created to satisfy.
+func (m Monitor) CreatedFor() int {
+	return m.createdFor
+}
+
 // ID is a getter function for a monitor's unique identifier.
 // Returns:
 // The monitor's id.

@@ -64,7 +64,7 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		return
 	}
 	type Data struct {
-		MonitorID          int
+		URL                string
 		ScriptPath         string
 		LastRan            time.Time
 		ChangeSignificance string
@@ -76,16 +76,22 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		report, findErr := models.FindLastReportForMonitor(h.db, monitor)
 		if findErr != nil {
 			fmt.Println("No report for monitor", monitor, "ERROR", findErr)
-		} else {
-			data = append(data, Data{
-				MonitorID:          monitor.ID(),
-				ScriptPath:         monitor.ScriptPath(),
-				LastRan:            monitor.LastRun(),
-				ChangeSignificance: report.Change().String(),
-				Message:            report.Message(),
-				Checksum:           report.Checksum(),
-			})
+			continue
 		}
+		request, findErr := models.FindRequest(h.db, monitor.CreatedFor())
+		if findErr != nil {
+			fmt.Println("Could not find the request satisfied by monitor #", monitor.ID())
+			continue
+		}
+		data = append(data, Data{
+			URL:                request.URL(),
+			ScriptPath:         monitor.ScriptPath(),
+			LastRan:            monitor.LastRun(),
+			ChangeSignificance: report.Change().String(),
+			Message:            report.Message(),
+			Checksum:           report.Checksum(),
+		})
+		fmt.Println("Appended report")
 	}
 	// Serve the page with the data about monitors and their recent reports.
 	t, err := template.ParseFiles(
