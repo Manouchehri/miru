@@ -113,6 +113,7 @@ ul#errors li {
 div.reportsummary {
     margin-bottom: 30px;
     padding: 10px 15px;
+    cursor: pointer;
 }
 
 div.reportsummary div.oneliner div.change {
