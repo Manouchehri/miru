@@ -25,13 +25,13 @@ func (i Importance) String() string {
 	case NoChange:
 		return "No Change"
 	case MinorUpdate:
-		return "Minor Update"
+		return "Updated"
 	case ContentChange:
-		return "Content Change"
+		return "Changed"
 	case Rewritten:
-		return "Major Rewrite"
+		return "Rewritten"
 	case Deleted:
-		return "Deleted Page"
+		return "Deleted"
 	default:
 		return "Uknown"
 	}

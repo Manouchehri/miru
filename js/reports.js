@@ -2,10 +2,10 @@
 
 // Constants that map directly to the backend's Importance type.
 const noChange = 'No Change'
-const minorUpdate = 'Minor Update'
-const contentChange = 'Content Change'
-const rewritten = 'Major Rewrite'
-const deleted = 'Deleted Page'
+const minorUpdate = 'Updated'
+const contentChange = 'Changed'
+const rewritten = 'Rewritten'
+const deleted = 'Deleted'
 
 const green = 'rgb(174, 255, 139)'
 const yellow = 'rgb(255, 236, 131)'
