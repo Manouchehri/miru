@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"strconv"
 
 	"../auth"
 	"../config"
@@ -43,6 +44,13 @@ type ListRequestsHandler struct {
 	db  *sql.DB
 }
 
+// RejectRequestHandler implements net/http.ServeHTTP to handle the rejection
+// of monitor requests by administrators.
+type RejectRequestHandler struct {
+	cfg *config.Config
+	db  *sql.DB
+}
+
 // NewMakeRequestPageHandler is the constructor function for a MakeRequestPageHandler.
 // Arguments:
 // cfg: The application's global configuration.
@@ -77,6 +85,19 @@ func NewMakeRequestHandler(cfg *config.Config, db *sql.DB) MakeRequestHandler {
 // A new ListRequestsHandler that can be bound to a router.
 func NewListRequestsHandler(cfg *config.Config, db *sql.DB) ListRequestsHandler {
 	return ListRequestsHandler{
+		cfg: cfg,
+		db:  db,
+	}
+}
+
+// NewRejectRequestHandler is the constructor function for a RejectRequestHandler.
+// Arguments:
+// cfg: The application's global configuration.
+// db: A database connection.
+// Returns:
+// A new RejectRequestHandler that can be bound to a router.
+func NewRejectRequestHandler(cfg *config.Config, db *sql.DB) RejectRequestHandler {
+	return RejectRequestHandler{
 		cfg: cfg,
 		db:  db,
 	}
@@ -217,4 +238,43 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 		LoggedIn    bool
 		UserIsAdmin bool
 	}{pendingRequests, true, archiver.IsAdmin()})
+}
+
+// ServeHTTP deletes a pending request.
+// Arguments:
+// res: Provided by the net/http server, used to write the response.
+// req: Provided by the net/http server, contains information about the request.
+func (h RejectRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+	// Check that the request is coming from an authenticated administrator.
+	cookie, err := req.Cookie(auth.SessionCookieName)
+	if err != nil {
+		fmt.Println("No cookie", err)
+		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		return
+	}
+	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
+	if err != nil || !archiver.IsAdmin() {
+		fmt.Println("Not admin", err)
+		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
+		return
+	}
+	// Extract inputs from the submitted form.
+	req.ParseForm()
+	requestID := req.FormValue("requestID")
+	id, parseErr := strconv.Atoi(requestID)
+	if parseErr != nil {
+		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
+		return
+	}
+	request, findErr := models.FindRequest(h.db, id)
+	if findErr != nil {
+		BadRequest(res, req, h.cfg, errors.New("no such request"), true, true)
+		return
+	}
+	deleteErr := request.Delete(h.db)
+	if deleteErr != nil {
+		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
+		return
+	}
+	http.Redirect(res, req, "/listrequests", http.StatusSeeOther)
 }
