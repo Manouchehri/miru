@@ -85,7 +85,7 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 		Email   string
 		IsAdmin bool
 	}
-	data := make([]Data, len(archivers))
+	data := []Data{}
 	for _, archiver := range archivers {
 		data = append(data, Data{
 			ID:      archiver.ID(),

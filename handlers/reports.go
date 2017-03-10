@@ -71,7 +71,7 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		Message            string
 		Checksum           string
 	}
-	data := make([]Data, len(monitors))
+	data := []Data{}
 	for _, monitor := range monitors {
 		report, findErr := models.FindLastReportForMonitor(h.db, monitor)
 		if findErr != nil {
@@ -91,7 +91,6 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 			Message:            report.Message(),
 			Checksum:           report.Checksum(),
 		})
-		fmt.Println("Appended report")
 	}
 	// Serve the page with the data about monitors and their recent reports.
 	t, err := template.ParseFiles(
