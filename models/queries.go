@@ -50,6 +50,7 @@ create table if not exists requests (
 	created_at timestamp not null,
 	url text not null,
 	instructions text,
+  rejected_at timestamp,
 	foreign key(created_by) references archivers(id)
 );`
 
@@ -185,11 +186,14 @@ where exists(
 // QSaveRequest is an SQL query that inserts a new request.
 const QSaveRequest = `
 insert into requests (
-	created_by, created_at, url, instructions
-) values ($1, $2, $3, $4);`
+	created_by, created_at, url, instructions, rejected_at
+) values ($1, $2, $3, $4, null);`
 
-// QRejectRequest is an SQL query that deletes a request.
-const QRejectRequest = `delete from requests where id = $1;`
+// QRejectRequest is an SQL query that marks a request as rejected.
+const QRejectRequest = `
+update requests
+set rejected_at = $2
+where id = $1;`
 
 // QIsRequestFulfilled is an SQL query that determines whether a request has been
 // fulfilled by looking for a monitor that was created to fulfill it.
@@ -202,14 +206,14 @@ select exists(
 
 // QFindRequest is an SQL query that attempts to find a monitor request.
 const QFindRequest = `
-select created_by, created_at, url, instructions
+select created_by, created_at, url, instructions, rejected_at
 from requests
 where id = $1;`
 
 // QListPendingRequests is an SQL query that finds all requests for which no
 // monitor has yet been created to fulfill.
 const QListPendingRequests = `
-select R.id, R.created_by, R.created_at, R.url, R.instructions
+select R.id, R.created_by, R.created_at, R.url, R.instructions, R.rejected_at
 from requests R
 where not exists(
 	select M.id

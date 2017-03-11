@@ -14,6 +14,7 @@ type Request struct {
 	createdAt    time.Time
 	url          string
 	instructions string
+	rejectedAt   *time.Time
 }
 
 // NewRequest is the constructor function for a new request to have a site monitored.
@@ -30,6 +31,7 @@ func NewRequest(creator Archiver, url, instructions string) Request {
 		createdAt:    time.Now(),
 		url:          url,
 		instructions: instructions,
+		rejectedAt:   nil,
 	}
 }
 
@@ -50,7 +52,7 @@ func (r Request) ID() int {
 func FindRequest(db *sql.DB, id int) (Request, error) {
 	r := Request{}
 	err := db.QueryRow(QFindRequest, id).Scan(
-		&r.createdBy, &r.createdAt, &r.url, &r.instructions)
+		&r.createdBy, &r.createdAt, &r.url, &r.instructions, &r.rejectedAt)
 	if err != nil {
 		return Request{}, err
 	}
@@ -72,7 +74,7 @@ func ListPendingRequests(db *sql.DB) ([]Request, error) {
 	}
 	for rows.Next() {
 		r := Request{}
-		err = rows.Scan(&r.id, &r.createdBy, &r.createdAt, &r.url, &r.instructions)
+		err = rows.Scan(&r.id, &r.createdBy, &r.createdAt, &r.url, &r.instructions, &r.rejectedAt)
 		if err != nil {
 			return []Request{}, err
 		}
@@ -136,6 +138,6 @@ func (r *Request) Delete(db *sql.DB) error {
 	if isFulfilled {
 		return errors.New("cannot delete a fulfilled request")
 	}
-	_, err = db.Exec(QRejectRequest, r.id)
+	_, err = db.Exec(QRejectRequest, r.id, time.Now())
 	return err
 }
