@@ -46,7 +46,6 @@ input[type=text], input[type=password], input[type=number], textarea {
 }
 
 textarea {
-    width: 260px;
     height: 100px;
 }
 
