@@ -301,6 +301,6 @@ func (h RejectRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 		return
 	}
 	handler := NewListRequestsHandler(h.cfg, h.db)
-	handler.PushSuccessMsg(fmt.Sprintf("Successfully rejected request with ID %d", requestID))
+	handler.PushSuccessMsg(fmt.Sprintf("Successfully rejected request with ID %d", id))
 	handler.ServeHTTP(res, req)
 }
