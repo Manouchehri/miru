@@ -37,8 +37,9 @@ type UploadScriptHandler struct {
 // UploadPageHandler implements net/http.ServeHTTP to sreve a page to
 // administrators that they can use to upload new monitor scripts.
 type UploadPageHandler struct {
-	cfg *config.Config
-	db  *sql.DB
+	cfg       *config.Config
+	db        *sql.DB
+	Successes []string
 }
 
 // NewUploadScriptHandler is the constructor function for UploadScriptHandler.
@@ -61,9 +62,18 @@ func NewUploadScriptHandler(c *config.Config, db *sql.DB) UploadScriptHandler {
 // A new UploadPageHandler that can be bound to a router.
 func NewUploadPageHandler(cfg *config.Config, db *sql.DB) UploadPageHandler {
 	return UploadPageHandler{
-		cfg: cfg,
-		db:  db,
+		cfg:       cfg,
+		db:        db,
+		Successes: []string{},
 	}
+}
+
+// PushSuccessMsg adds a new message that will be displayed on the page served by the
+// handler to indicate a successful operation.
+// Arguments:
+// msg: A success message to display to the user.
+func (h *UploadPageHandler) PushSuccessMsg(msg string) {
+	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP handles file uploads containing new monitor scripts.
@@ -137,7 +147,9 @@ func (h UploadScriptHandler) ServeHTTP(
 		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
-	http.Redirect(res, req, "/listrequests", http.StatusSeeOther)
+	handler := NewUploadPageHandler(h.cfg, h.db)
+	handler.PushSuccessMsg(fmt.Sprintf("Successfully created a new monitor script with ID %d", monitor.ID()))
+	handler.ServeHTTP(res, req)
 }
 
 // ServeHTTP serves a page that administrators can use to upload new
@@ -182,7 +194,7 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		LoggedIn    bool
 		UserIsAdmin bool
 		Successes   []string
-	}{requestID, true, activeUser.IsAdmin(), []string{}})
+	}{requestID, true, activeUser.IsAdmin(), h.Successes})
 }
 
 // generateUniqueFilename produces a filename that is guaranteed to be unique.

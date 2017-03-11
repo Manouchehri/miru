@@ -19,8 +19,9 @@ const archiversPage string = "archivers.html"
 // ArchiversListPageHandler implements net/http.ServeHTTP to serve a page containing a list
 // of all archivers with buttons to make them an administrator.
 type ArchiversListPageHandler struct {
-	cfg *config.Config
-	db  *sql.DB
+	cfg       *config.Config
+	db        *sql.DB
+	Successes []string
 }
 
 // MakeAdminHandler handles requests from administrators to promote an archiver to
@@ -38,8 +39,9 @@ type MakeAdminHandler struct {
 // A new ArchiversListPageHandler which can be bound to a router.
 func NewArchiversListPageHandler(cfg *config.Config, db *sql.DB) ArchiversListPageHandler {
 	return ArchiversListPageHandler{
-		cfg: cfg,
-		db:  db,
+		cfg:       cfg,
+		db:        db,
+		Successes: []string{},
 	}
 }
 
@@ -53,6 +55,14 @@ func NewMakeAdminHandler(cfg *config.Config, db *sql.DB) MakeAdminHandler {
 		cfg: cfg,
 		db:  db,
 	}
+}
+
+// PushSuccessMsg adds a new message that will be displayed on the page served by the
+// handler to indicate a successful operation.
+// Arguments:
+// msg: A success message to display to the user.
+func (h *ArchiversListPageHandler) PushSuccessMsg(msg string) {
+	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP serves a page with a table of all archivers.
@@ -108,7 +118,7 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 		LoggedIn    bool
 		UserIsAdmin bool
 		Successes   []string
-	}{data, true, true, []string{}})
+	}{data, true, true, h.Successes})
 }
 
 // ServeHTTP handles requests to have an archiver promoted to become an administrator.
@@ -153,5 +163,7 @@ func (h MakeAdminHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 		return
 	}
 	// Redirect back to the archivers list page.
-	http.Redirect(res, req, "/archivers", http.StatusSeeOther)
+	handler := NewArchiversListPageHandler(h.cfg, h.db)
+	handler.PushSuccessMsg(fmt.Sprintf("Successfully made %s an administrator.", archiver.Email()))
+	handler.ServeHTTP(res, req)
 }
