@@ -1,20 +1,29 @@
 {{define "nav"}}
 <nav id="topnav">
     <div class="content">
-    <a href="/">Miru</a>
-    <div id="navbuttons">
-        {{if .LoggedIn}}
-            {{if .UserIsAdmin}}
-            <a href="/adminpanel">Admin Panel</a>
+        <a href="/">Miru</a>
+        <div id="navbuttons">
+            {{if .LoggedIn}}
+                {{if .UserIsAdmin}}
+                <a href="/adminpanel">Admin Panel</a>
+                {{else}}
+                <a href="/request">Request</a>
+                {{end}}
+            <a href="/logout">Logout</a>
             {{else}}
-            <a href="/request">Request</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
             {{end}}
-        <a href="/logout">Logout</a>
-        {{else}}
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-        {{end}}
-    </div>
+        </div>
     </div>
 </nav>
+{{if .Successes}}
+    <div class="content" id="successmsgs">
+        <ul id="successes">
+        {{range $i, $success := .Successes}}
+            <li>{{$success}}</li>
+        {{end}}
+        </ul>
+    </div>
+{{end}}
 {{end}}

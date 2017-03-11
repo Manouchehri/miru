@@ -62,5 +62,6 @@ func (h AdminPanelPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Requ
 	t.Execute(res, struct {
 		UserIsAdmin bool
 		LoggedIn    bool
-	}{true, true})
+		Successes   []string
+	}{true, true, []string{}})
 }

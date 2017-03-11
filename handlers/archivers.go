@@ -107,7 +107,8 @@ func (h ArchiversListPageHandler) ServeHTTP(res http.ResponseWriter, req *http.R
 		Archivers   []Data
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{data, true, true})
+		Successes   []string
+	}{data, true, true, []string{}})
 }
 
 // ServeHTTP handles requests to have an archiver promoted to become an administrator.

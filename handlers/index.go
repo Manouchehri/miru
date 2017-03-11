@@ -59,5 +59,6 @@ func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{loggedIn, isAdmin})
+		Successes   []string
+	}{loggedIn, isAdmin, []string{}})
 }

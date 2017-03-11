@@ -99,7 +99,7 @@ ul.linklist li {
     margin-bottom: 10px;
 }
 
-ul#errors {
+ul#errors, ul#successes {
     list-style: none;
     padding-left: 0;
 }
@@ -107,6 +107,12 @@ ul#errors {
 ul#errors li {
     padding: 20px;
     background-color: rgb(255, 128, 144);
+    margin-bottom: 20px;
+}
+
+ul#successes li {
+    padding: 20px;
+    background-color: rgb(200, 245, 164);
     margin-bottom: 20px;
 }
 

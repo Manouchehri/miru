@@ -68,7 +68,8 @@ func (h LoginPageHandler) ServeHTTP(
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{false, false})
+		Successes   []string
+	}{false, false, []string{}})
 }
 
 // ServeHTTP handles a login form POST request from the user and attempts to

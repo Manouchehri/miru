@@ -27,5 +27,6 @@ func BadRequest(res http.ResponseWriter, req *http.Request, cfg *config.Config, 
 		LoggedIn    bool
 		UserIsAdmin bool
 		Errors      []string
-	}{loggedIn, isAdmin, []string{err.Error()}})
+		Successes   []string
+	}{loggedIn, isAdmin, []string{err.Error()}, []string{}})
 }

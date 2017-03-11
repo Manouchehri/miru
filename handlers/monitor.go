@@ -181,7 +181,8 @@ func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		CreatedFor  int
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{requestID, true, activeUser.IsAdmin()})
+		Successes   []string
+	}{requestID, true, activeUser.IsAdmin(), []string{}})
 }
 
 // generateUniqueFilename produces a filename that is guaranteed to be unique.

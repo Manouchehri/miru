@@ -70,7 +70,8 @@ func (h RegisterPageHandler) ServeHTTP(
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{false, false})
+		Successes   []string
+	}{false, false, []string{}})
 }
 
 // ServeHTTP handles POST requests containing an archiver's registration data.

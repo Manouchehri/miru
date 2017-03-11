@@ -106,5 +106,6 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 		Reports     []Data
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{data, true, true})
+		Successes   []string
+	}{data, true, true, []string{}})
 }

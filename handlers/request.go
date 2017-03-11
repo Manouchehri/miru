@@ -26,8 +26,9 @@ const requestListPage string = "requestlist.html"
 
 // MakeRequestPageHandler implements net/http.ServeHTTP to serve the request page.
 type MakeRequestPageHandler struct {
-	cfg *config.Config
-	db  *sql.DB
+	cfg       *config.Config
+	db        *sql.DB
+	Successes []string
 }
 
 // MakeRequestHandler implements net/http.ServeHTTP to handle requests to have a
@@ -40,8 +41,9 @@ type MakeRequestHandler struct {
 // ListRequestsHandler implements net/http.ServeHTTP to serve a page showing all
 // pending monitor requests to administrators.
 type ListRequestsHandler struct {
-	cfg *config.Config
-	db  *sql.DB
+	cfg       *config.Config
+	db        *sql.DB
+	Successes []string
 }
 
 // RejectRequestHandler implements net/http.ServeHTTP to handle the rejection
@@ -59,8 +61,9 @@ type RejectRequestHandler struct {
 // A new MakeRequestPageHandler that can be bound to a router.
 func NewMakeRequestPageHandler(cfg *config.Config, db *sql.DB) MakeRequestPageHandler {
 	return MakeRequestPageHandler{
-		cfg: cfg,
-		db:  db,
+		cfg:       cfg,
+		db:        db,
+		Successes: []string{},
 	}
 }
 
@@ -85,8 +88,9 @@ func NewMakeRequestHandler(cfg *config.Config, db *sql.DB) MakeRequestHandler {
 // A new ListRequestsHandler that can be bound to a router.
 func NewListRequestsHandler(cfg *config.Config, db *sql.DB) ListRequestsHandler {
 	return ListRequestsHandler{
-		cfg: cfg,
-		db:  db,
+		cfg:       cfg,
+		db:        db,
+		Successes: []string{},
 	}
 }
 
@@ -101,6 +105,22 @@ func NewRejectRequestHandler(cfg *config.Config, db *sql.DB) RejectRequestHandle
 		cfg: cfg,
 		db:  db,
 	}
+}
+
+// PushSuccessMsg adds a new message that will be displayed on the page served by the
+// handler to indicate a successful operation.
+// Arguments:
+// msg: A success message to display to the user.
+func (h *MakeRequestPageHandler) PushSuccessMsg(msg string) {
+	h.Successes = append(h.Successes, msg)
+}
+
+// PushSuccessMsg adds a new message that will be displayed on the page served by the
+// handler to indicate a successful operation.
+// Arguments:
+// msg: A success message to display to the user.
+func (h *ListRequestsHandler) PushSuccessMsg(msg string) {
+	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP serves a page that archivers can use to make requests to have a site monitored.
@@ -131,7 +151,8 @@ func (h MakeRequestPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Req
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{true, activeUser.IsAdmin()})
+		Successes   []string
+	}{true, activeUser.IsAdmin(), h.Successes})
 }
 
 // ServeHTTP handles a form upload containing a request to have a site monitored.
@@ -171,7 +192,9 @@ func (h MakeRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 		return
 	}
 	fmt.Println("Created request", request)
-	http.Redirect(res, req, "/request", http.StatusFound)
+	handler := NewMakeRequestPageHandler(h.cfg, h.db)
+	handler.PushSuccessMsg("Successfully sent your request. An administrator will review it soon.")
+	handler.ServeHTTP(res, req)
 }
 
 // ServeHTTP serves a page for administrators to view pending monitor requests.
@@ -237,7 +260,8 @@ func (h ListRequestsHandler) ServeHTTP(res http.ResponseWriter, req *http.Reques
 		Requests    []Data
 		LoggedIn    bool
 		UserIsAdmin bool
-	}{pendingRequests, true, archiver.IsAdmin()})
+		Successes   []string
+	}{pendingRequests, true, archiver.IsAdmin(), h.Successes})
 }
 
 // ServeHTTP deletes a pending request.
@@ -276,5 +300,7 @@ func (h RejectRequestHandler) ServeHTTP(res http.ResponseWriter, req *http.Reque
 		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
 		return
 	}
-	http.Redirect(res, req, "/listrequests", http.StatusSeeOther)
+	handler := NewListRequestsHandler(h.cfg, h.db)
+	handler.PushSuccessMsg(fmt.Sprintf("Successfully rejected request with ID %d", requestID))
+	handler.ServeHTTP(res, req)
 }
