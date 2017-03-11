@@ -22,16 +22,17 @@
             <td>{{.URL}}</td>
             <td>{{.Instructions}}</td>
             <td><a href="/monitor?id={{.RequestID}}">Approve</a></td>
-            <td><a href="#" onclick="reject({{.RequestID}})">Reject</a></td>
+            <td>
+              <form action="/rejectrequest" method="POST">
+                <input type="hidden" name="requestID" value="{{.RequestID}}" />
+                <a href="#" class="submitbtn">Reject</a>
+              </form>
+            </td>
           </tr>
           {{end}}
         </tbody>
       </table>
     </div>
-    <script>
-function reject(id) {
-  alert('NOT IMPLEMENTED\nRejecting request ID: ' + id)
-}
-    </script>
+    <script src="/js/requestlist.js"></script>
   </body>
 </html>
