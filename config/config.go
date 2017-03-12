@@ -1,5 +1,11 @@
 package config
 
+import (
+	"encoding/json"
+	"os"
+	"path"
+)
+
 // The name of the configuration file to look for.
 const configFilename string = "config.json"
 
@@ -7,26 +13,33 @@ const configFilename string = "config.json"
 // It is very likely that most request handler implementations will want to
 // have a reference to a copy of this.
 type Config struct {
-	BindAddress string // The address and port to bind the server to.
-	TemplateDir string // The directory containing HTML page templates.
-	Database    string // The connection string for the database.
-	ScriptDir   string // The directory to save monitor scripts to.
-	MGDomain    string // The domain registered to Mailgun to send emails through.
-	MGAPIKey    string // Your Mailgun API key.
-	MGPublicKey string // Your Mailgun public key.
+	BindAddress string `json:"bindAddress"`      // The address and port to bind the server to.
+	TemplateDir string `json:"templateDir"`      // The directory containing HTML page templates.
+	Database    string `json:"database"`         // The connection string for the database.
+	ScriptDir   string `json:"scriptDir"`        // The directory to save monitor scripts to.
+	MGDomain    string `json:"mailgunDomain"`    // The domain registered to Mailgun to send emails through.
+	MGAPIKey    string `json:"mailgunAPIKey"`    // Your Mailgun API key.
+	MGPublicKey string `json:"mailgunPublicKey"` // Your Mailgun public key.
 }
 
 // MustLoad tries to load a configuration and panics if it cannot do so.
 // A `CONFIG_DIR` environment variable can be set to specify the directory
 // to read `configFilename` from.
 func MustLoad() Config {
-	return Config{
-		BindAddress: "127.0.0.1:3000",
-		TemplateDir: "templates",
-		Database:    "./miru.db",
-		ScriptDir:   "monitorscripts",
-		MGDomain:    "",
-		MGAPIKey:    "",
-		MGPublicKey: "",
+	c := Config{}
+	configDir := os.Getenv("CONFIG_DIR")
+	if configDir == "" {
+		configDir = "config"
 	}
+	f, err := os.Open(path.Join(configDir, configFilename))
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	decoder := json.NewDecoder(f)
+	decodeErr := decoder.Decode(&c)
+	if decodeErr != nil {
+		panic(decodeErr)
+	}
+	return c
 }
