@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -54,21 +54,21 @@ func (h CreatePagePageHandler) ServeHTTP(res http.ResponseWriter, req *http.Requ
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	// Serve the page.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, requestPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
-		fail.InternalError(res, req, h.cfg, handlers.ErrTemplateLoad, true, activeUser.IsAdmin())
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, activeUser.IsAdmin())
 		return
 	}
 	t.Execute(res, struct {

@@ -1,8 +1,8 @@
 package archivers
 
 import (
-	"../"
 	"../../config"
+	"../common"
 
 	"database/sql"
 	"fmt"
@@ -85,8 +85,8 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Serve the page with the data about archivers.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, archiversPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		fmt.Println("Error parsing archivers page template", err)
 		InternalError(res, req, h.cfg, errTemplateLoad, true, true)

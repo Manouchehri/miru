@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -55,13 +55,13 @@ func (h FulfillHandler) ServeHTTP(
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Extract inputs from the form.
@@ -72,20 +72,20 @@ func (h FulfillHandler) ServeHTTP(
 	ext, ftErr := filetypeExtension(filetype)
 	if ftErr != nil || parseErr1 != nil || parseErr2 != nil || parseErr3 != nil {
 		fmt.Println(ftErr)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrGenericInvalidData, true, true)
 		return
 	}
 	// Find the request that is being fulfilled to establish relational data.
 	request, findErr := models.FindRequest(h.db, requestID)
 	if findErr != nil {
 		fmt.Println("no such request", requestID, "ERROR", findErr)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrGenericInvalidData, true, true)
 		return
 	}
 	file, _, openErr := req.FormFile("script")
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrCreateFile, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrCreateFile, true, true)
 		return
 	}
 	defer file.Close()
@@ -94,7 +94,7 @@ func (h FulfillHandler) ServeHTTP(
 	toDisk, openErr := os.Create(filename)
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		fail.InternalError(res, req, h.cfg, handlers.ErrCreateFile, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrCreateFile, true, true)
 		return
 	}
 	defer toDisk.Close()
@@ -112,7 +112,7 @@ func (h FulfillHandler) ServeHTTP(
 	saveErr := monitor.Save(h.db)
 	if saveErr != nil {
 		fmt.Println(saveErr)
-		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	handler := NewFulfillPageHandler(h.cfg, h.db)

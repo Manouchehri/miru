@@ -1,10 +1,10 @@
 package reports
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -49,20 +49,20 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Load information about existing monitors and the last report each generated.
 	monitors, findErr := models.ListMonitors(h.db)
 	if findErr != nil {
 		fmt.Println("Could not get monitors", findErr)
-		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -97,11 +97,11 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Serve the page with the data about monitors and their recent reports.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, reportsPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		fmt.Println("Error parsing reports page template", err)
-		fail.InternalError(res, req, h.cfg, handlers.ErrTemplateLoad, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

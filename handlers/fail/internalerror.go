@@ -1,8 +1,8 @@
 package fail
 
 import (
-	"../"
 	"../../config"
+	"../common"
 
 	"html/template"
 	"net/http"
@@ -21,8 +21,8 @@ func InternalError(res http.ResponseWriter, req *http.Request, cfg *config.Confi
 	res.WriteHeader(http.StatusInternalServerError)
 	t, _ := template.ParseFiles(
 		path.Join(cfg.TemplateDir, errorTemplate),
-		path.Join(cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(cfg.TemplateDir, common.HeadTemplate),
+		path.Join(cfg.TemplateDir, common.NavTemplate))
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool

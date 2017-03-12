@@ -1,8 +1,8 @@
 package archivers
 
 import (
-	"../"
 	"../../config"
+	"../common"
 
 	"html/template"
 	"net/http"
@@ -36,8 +36,8 @@ func (h LoginPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, loginPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		InternalError(res, req, h.cfg, errTemplateLoad, false, false)
 		return

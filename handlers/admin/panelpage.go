@@ -1,10 +1,10 @@
 package admin
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -56,8 +56,8 @@ func (h PanelPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	// Serve the admin panel page.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, adminPanelPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		fmt.Println("Failed to parse templates", err)
 		fail.InternalError(res, req, h.cfg, errTemplateLoad, true, true)

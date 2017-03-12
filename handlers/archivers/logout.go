@@ -1,8 +1,6 @@
 package archivers
 
 import (
-	"time"
-
 	"../../auth"
 	"../../config"
 	"../../models"
@@ -10,6 +8,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 // LogoutHandler implements net/http.ServeHTTP to handle user logouts.

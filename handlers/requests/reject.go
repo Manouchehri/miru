@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -43,13 +43,13 @@ func (h RejectHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("No cookie", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !archiver.IsAdmin() {
 		fmt.Println("Not admin", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Extract inputs from the submitted form.
@@ -57,7 +57,7 @@ func (h RejectHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	requestID := req.FormValue("requestID")
 	id, parseErr := strconv.Atoi(requestID)
 	if parseErr != nil {
-		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrGenericInvalidData, true, true)
 		return
 	}
 	request, findErr := models.FindRequest(h.db, id)
@@ -67,7 +67,7 @@ func (h RejectHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	deleteErr := request.Delete(h.db)
 	if deleteErr != nil {
-		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	handler := NewListRequestsHandler(h.cfg, h.db)

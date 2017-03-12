@@ -1,10 +1,10 @@
 package index
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -61,8 +61,8 @@ func (h FrontPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	}
 	t, loadErr := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, indexPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if loadErr != nil {
 		fmt.Println("failed to load template", loadErr)
 		fail.InternalError(res, req, h.cfg, errTemplateLoad, loggedIn, isAdmin)

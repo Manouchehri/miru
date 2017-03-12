@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -58,12 +58,12 @@ func (h FulfillPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	requestIDs, found := req.URL.Query()["id"]
@@ -75,15 +75,15 @@ func (h FulfillPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 	requestID, parseErr := strconv.Atoi(requestIDs[0])
 	if parseErr != nil {
 		fmt.Println("Need a request valid id")
-		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, activeUser.IsAdmin())
+		fail.BadRequest(res, req, h.cfg, common.ErrGenericInvalidData, true, activeUser.IsAdmin())
 		return
 	}
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, uploadPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
-		fail.InternalError(res, req, h.cfg, handlers.ErrTemplateLoad, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

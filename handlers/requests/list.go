@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"../"
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -57,20 +57,20 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("No cookie", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !archiver.IsAdmin() {
 		fmt.Println("Not admin", err)
-		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Load all pending requests into an array of structs we can display in the page.
 	requests, err := models.ListPendingRequests(h.db)
 	if err != nil {
 		fmt.Println("Could not get requests", err)
-		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -100,11 +100,11 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Serve the listing page.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, requestListPage),
-		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		fmt.Println("Could not load template", err)
-		fail.InternalError(res, req, h.cfg, handlers.ErrTemplateLoad, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

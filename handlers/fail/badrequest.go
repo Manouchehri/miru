@@ -1,8 +1,8 @@
 package fail
 
 import (
-	"../"
 	"../../config"
+	"../common"
 
 	"html/template"
 	"net/http"
@@ -22,8 +22,8 @@ func BadRequest(res http.ResponseWriter, req *http.Request, cfg *config.Config, 
 	res.WriteHeader(http.StatusBadRequest)
 	t, _ := template.ParseFiles(
 		path.Join(cfg.TemplateDir, errorTemplate),
-		path.Join(cfg.TemplateDir, handlers.HeadTemplate),
-		path.Join(cfg.TemplateDir, handlers.NavTemplate))
+		path.Join(cfg.TemplateDir, common.HeadTemplate),
+		path.Join(cfg.TemplateDir, common.NavTemplate))
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool
