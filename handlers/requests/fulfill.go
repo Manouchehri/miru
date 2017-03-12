@@ -115,7 +115,7 @@ func (h FulfillHandler) ServeHTTP(
 		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
-	handler := NewFulfillPageHandler(h.cfg, h.db)
+	handler := NewListHandler(h.cfg, h.db)
 	handler.PushSuccessMsg(fmt.Sprintf("Successfully created a new monitor script with ID %d", monitor.ID()))
 	handler.ServeHTTP(res, req)
 }
