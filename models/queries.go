@@ -31,6 +31,15 @@ create table if not exists archivers (
   last_login_time timestamp
 );`
 
+// QInitLoginAttemptsTable is an SQL query that creates the login_attempts table.
+const QInitLoginAttemptsTable = `
+create table if not exists login_attempts (
+  id integer primary key,
+  email_address varchar(64) not null,
+  sender_ip varchar(45),
+  made_at timestamp
+ );`
+
 // QInitSessionsTable is an SQL query that creates the sessions table.
 const QInitSessionsTable = `
 create table if not exists sessions (
@@ -237,3 +246,27 @@ from reports
 where created_by = $1
 order by id desc
 limit 1;`
+
+// QSaveLoginAttempt is an SQL query that inserts a new login attempt for a
+// given email address.
+const QSaveLoginAttempt = `
+insert into login_attempts(
+  email_address, sender_ip, made_at
+ ) values ($1, $2, $3);`
+
+// QDeleteLoginAttempt is an SQL query that deletes a login attempt.
+const QDeleteLoginAttempt = `delete from login_attempts where id = $1;`
+
+// QFindLoginAttemptsBySource is an SQL query that finds all login attempts made
+// by a user from a given IP address.
+const QFindLoginAttemptsBySender = `
+select id, email_address, made_at
+from login_attempts
+where sender_ip= $1;`
+
+// QFindLoginAttemptsByEmail is an SQL query that finds all login attempts made
+// for a given email address.
+const QFindLoginAttemptsByEmail = `
+select id, sender_ip, made_at
+from login_attempts
+where email_address = $1;`

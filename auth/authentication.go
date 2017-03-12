@@ -14,6 +14,10 @@ import (
 // browser to identify their authenticated session with.
 const SessionCookieName string = "mirusession"
 
+// MaxLoginAttempts is the maximum number of attempts we want to allow
+// for a user to attempt to login to any account.
+const MaxLoginAttempts int = 5
+
 // maxGenerateTokenAttempts is the maximum number of times to attempt to
 // generate a unique session token.  If GenerateUniqueSessionToken fails to
 // check the database this many times to see if a token generated exists,
