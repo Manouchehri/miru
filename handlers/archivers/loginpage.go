@@ -3,6 +3,7 @@ package archivers
 import (
 	"../../config"
 	"../common"
+	"../fail"
 
 	"html/template"
 	"net/http"
@@ -39,7 +40,7 @@ func (h LoginPageHandler) ServeHTTP(
 		path.Join(h.cfg.TemplateDir, common.HeadTemplate),
 		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
-		InternalError(res, req, h.cfg, errTemplateLoad, false, false)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, false, false)
 		return
 	}
 	t.Execute(res, struct {

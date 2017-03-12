@@ -4,6 +4,8 @@ import (
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -42,12 +44,12 @@ func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	archiver, findErr := models.FindArchiverByEmail(h.db, email)
 	if findErr != nil {
 		fmt.Println("Invalid email address")
-		BadRequest(res, req, h.cfg, errInvalidCredentials, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrInvalidCredentials, false, false)
 		return
 	}
 	if !auth.IsPasswordCorrect(password, archiver.Password()) {
 		fmt.Println("Incorrect password")
-		BadRequest(res, req, h.cfg, errInvalidCredentials, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrInvalidCredentials, false, false)
 		return
 	}
 	// Delete an old session if one exists.
@@ -60,7 +62,7 @@ func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	saveErr := session.Save(h.db)
 	if saveErr != nil {
 		fmt.Println("Error creating new session", saveErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, false, false)
 		return
 	}
 	cookie := http.Cookie{

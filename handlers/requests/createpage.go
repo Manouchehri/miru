@@ -17,21 +17,21 @@ import (
 // request a site be monitored through.
 const requestPage string = "request.html"
 
-// CreatePagePageHandler implements net/http.ServeHTTP to serve the request page.
-type CreatePagePageHandler struct {
+// CreatePageHandler implements net/http.ServeHTTP to serve the request page.
+type CreatePageHandler struct {
 	cfg       *config.Config
 	db        *sql.DB
 	Successes []string
 }
 
-// NewCreatePagePageHandler is the constructor function for a CreatePagePageHandler.
+// NewCreatePageHandler is the constructor function for a CreatePageHandler.
 // Arguments:
 // cfg: The application's global configuration.
 // db: A database connection.
 // Returns:
-// A new CreatePagePageHandler that can be bound to a router.
-func NewCreatePagePageHandler(cfg *config.Config, db *sql.DB) CreatePagePageHandler {
-	return CreatePagePageHandler{
+// A new CreatePageHandler that can be bound to a router.
+func NewCreatePageHandler(cfg *config.Config, db *sql.DB) CreatePageHandler {
+	return CreatePageHandler{
 		cfg:       cfg,
 		db:        db,
 		Successes: []string{},
@@ -42,7 +42,7 @@ func NewCreatePagePageHandler(cfg *config.Config, db *sql.DB) CreatePagePageHand
 // handler to indicate a successful operation.
 // Arguments:
 // msg: A success message to display to the user.
-func (h *CreatePagePageHandler) PushSuccessMsg(msg string) {
+func (h *CreatePageHandler) PushSuccessMsg(msg string) {
 	h.Successes = append(h.Successes, msg)
 }
 
@@ -50,7 +50,7 @@ func (h *CreatePagePageHandler) PushSuccessMsg(msg string) {
 // Arguments:
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
-func (h CreatePagePageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (h CreatePageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {

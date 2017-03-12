@@ -4,6 +4,7 @@ import (
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
 	"../fail"
 
 	"database/sql"
@@ -41,13 +42,13 @@ func (h CreateHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	archiver, err := models.FindSessionOwner(h.db, cookie.Value)
 	fmt.Println("Archiver making a request:", archiver)
 	if err != nil {
-		fail.BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	// Extract data from the form.
@@ -66,7 +67,7 @@ func (h CreateHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	request := models.NewRequest(archiver, parsedURL.String(), instructions)
 	saveErr := request.Save(h.db)
 	if saveErr != nil {
-		fail.InternalError(res, req, h.cfg, errDatabaseOperation, true, archiver.IsAdmin())
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, archiver.IsAdmin())
 		return
 	}
 	fmt.Println("Created request", request)

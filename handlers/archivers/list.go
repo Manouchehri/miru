@@ -1,8 +1,11 @@
 package archivers
 
 import (
+	"../../auth"
 	"../../config"
+	"../../models"
 	"../common"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -53,20 +56,20 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Load information about archivers.
 	archivers, findErr := models.ListArchivers(h.db)
 	if findErr != nil {
 		fmt.Println("Could not get archivers", findErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -89,7 +92,7 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if err != nil {
 		fmt.Println("Error parsing archivers page template", err)
-		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

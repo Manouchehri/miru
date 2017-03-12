@@ -70,7 +70,7 @@ func (h RejectHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
-	handler := NewListRequestsHandler(h.cfg, h.db)
+	handler := NewListHandler(h.cfg, h.db)
 	handler.PushSuccessMsg(fmt.Sprintf("Successfully rejected request with ID %d", id))
 	handler.ServeHTTP(res, req)
 }

@@ -4,6 +4,9 @@ import (
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
+	"../fail"
+	"../index"
 
 	"database/sql"
 	"fmt"
@@ -42,16 +45,16 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
 	if password != passwordRepeated {
 		fmt.Println("Passwords don't match")
-		BadRequest(res, req, h.cfg, errBadPassword, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrBadPassword, false, false)
 		return
 	}
 	if !auth.DefaultPasswordComplexityChecker().IsPasswordSecure(password) {
 		fmt.Println("Password is not strong enough")
-		BadRequest(res, req, h.cfg, errBadPassword, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrBadPassword, false, false)
 		return
 	}
 	if !auth.IsEmailValid(email) {
-		BadRequest(res, req, h.cfg, errInvalidEmail, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrInvalidEmail, false, false)
 		return
 	}
 	archiver, _ := models.FindArchiverByEmail(h.db, email)
@@ -69,10 +72,10 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	saveErr := archiver.Save(h.db)
 	if saveErr != nil {
 		fmt.Println("Failed to save new archiver", saveErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, false, false)
 		return
 	}
-	handler := NewIndexHandler(h.cfg, h.db)
+	handler := index.NewFrontPageHandler(h.cfg, h.db)
 	handler.PushSuccessMsg(fmt.Sprintf("You have successfully registered and can now log in with %s.", email))
 	handler.ServeHTTP(res, req)
 }

@@ -65,7 +65,7 @@ func (h FrontPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 		path.Join(h.cfg.TemplateDir, common.NavTemplate))
 	if loadErr != nil {
 		fmt.Println("failed to load template", loadErr)
-		fail.InternalError(res, req, h.cfg, errTemplateLoad, loggedIn, isAdmin)
+		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, loggedIn, isAdmin)
 		return
 	}
 	t.Execute(res, struct {

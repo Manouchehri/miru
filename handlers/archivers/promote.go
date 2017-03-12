@@ -1,7 +1,11 @@
 package archivers
 
 import (
+	"../../auth"
 	"../../config"
+	"../../models"
+	"../common"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -37,13 +41,13 @@ func (h PromoteHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Extract the data submitted in the form.
@@ -52,25 +56,25 @@ func (h PromoteHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	id, parseErr := strconv.Atoi(archiverID)
 	if parseErr != nil {
 		fmt.Println("Invalid archiver ID", parseErr)
-		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrGenericInvalidData, true, true)
 		return
 	}
 	// Try to promote the archiver selected.
 	archiver, findErr := models.FindArchiver(h.db, id)
 	if findErr != nil {
 		fmt.Println("No such archiver", id)
-		BadRequest(res, req, h.cfg, errDatabaseOperation, true, true)
+		fail.BadRequest(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
-	archiver.Promote(activeUser)
+	archiver.MakeAdmin(activeUser)
 	updateErr := archiver.Update(h.db)
 	if updateErr != nil {
 		fmt.Println("Could not update archiver", updateErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
 		return
 	}
 	// Redirect back to the archivers list page.
-	handler := NewArchiversListPageHandler(h.cfg, h.db)
+	handler := NewListHandler(h.cfg, h.db)
 	handler.PushSuccessMsg(fmt.Sprintf("Successfully made %s an administrator.", archiver.Email()))
 	handler.ServeHTTP(res, req)
 }

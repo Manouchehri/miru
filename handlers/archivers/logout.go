@@ -4,6 +4,8 @@ import (
 	"../../auth"
 	"../../config"
 	"../../models"
+	"../common"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -36,18 +38,18 @@ func NewLogoutHandler(cfg *config.Config, db *sql.DB) LogoutHandler {
 func (h LogoutHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	session, err := models.FindSession(h.db, cookie.Value)
 	if err != nil {
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
 	err = session.Delete(h.db)
 	if err != nil {
 		fmt.Println("Failed to delete session", err)
-		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, false, false)
 		return
 	}
 	http.SetCookie(res, &http.Cookie{
