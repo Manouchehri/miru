@@ -19,7 +19,7 @@
             <td>{{.Email}}</td>
             <td>{{.IsAdmin}}</td>
             <td>
-              <form method="POST" action="/makeadmin">
+              <form method="POST" action="/archivers/promote">
                 <input type="hidden" name="archiverID" value="{{.ID}}" />
                 <a href="#" class="submitbtn">Make Admin</a>
               </form>

@@ -21,9 +21,9 @@
             <td>{{.MadeBy}}</td>
             <td>{{.URL}}</td>
             <td>{{.Instructions}}</td>
-            <td><a href="/monitor?id={{.RequestID}}">Approve</a></td>
+            <td><a href="/requests/fulfill?id={{.RequestID}}">Approve</a></td>
             <td>
-              <form action="/rejectrequest" method="POST">
+              <form action="/requests/reject" method="POST">
                 <input type="hidden" name="requestID" value="{{.RequestID}}" />
                 <a href="#" class="submitbtn">Reject</a>
               </form>

@@ -5,14 +5,14 @@
         <div id="navbuttons">
             {{if .LoggedIn}}
                 {{if .UserIsAdmin}}
-                <a href="/adminpanel">Admin Panel</a>
+                <a href="/admin/panel">Admin Panel</a>
                 {{else}}
-                <a href="/request">Request</a>
+                <a href="/requests/create">Request</a>
                 {{end}}
-            <a href="/logout">Logout</a>
+            <a href="/archivers/logout">Logout</a>
             {{else}}
-            <a href="/login">Login</a>
-            <a href="/register">Register</a>
+            <a href="/archivers/login">Login</a>
+            <a href="/archivers/register">Register</a>
             {{end}}
         </div>
     </div>
