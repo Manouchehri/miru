@@ -68,6 +68,7 @@ func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie := http.Cookie{
 		Name:    auth.SessionCookieName,
 		Value:   session.ID(),
+		Path:    "/",
 		Expires: session.Expires(),
 	}
 	fmt.Println("Created cookie", cookie)
