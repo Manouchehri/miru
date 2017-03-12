@@ -1,15 +1,16 @@
-package handlers
+package requests
 
 import (
-	"../auth"
-	"../config"
-	"../models"
+	"../"
+	"../../auth"
+	"../../config"
+	"../../models"
+	"../fail"
 
 	"database/sql"
 	"encoding/hex"
 	"errors"
 	"fmt"
-	"html/template"
 	"io"
 	"math/rand"
 	"net/http"
@@ -19,81 +20,48 @@ import (
 	"time"
 )
 
-// uploadPage is the name of the HTML template containing a monitor script
-// uploading form.
-const uploadPage string = "scriptupload.html"
-
 // filenameLength is the number of random bytes to get to generate names
 // for uploaded scripts with.
 const filenameLength int = 16
 
-// UploadScriptHandler implements net/http.ServeHTTP to handle new monitor
+// FulfillHandler implements net/http.ServeHTTP to handle new monitor
 // script uploads from administrators.
-type UploadScriptHandler struct {
+type FulfillHandler struct {
 	cfg *config.Config
 	db  *sql.DB
 }
 
-// UploadPageHandler implements net/http.ServeHTTP to sreve a page to
-// administrators that they can use to upload new monitor scripts.
-type UploadPageHandler struct {
-	cfg       *config.Config
-	db        *sql.DB
-	Successes []string
-}
-
-// NewUploadScriptHandler is the constructor function for UploadScriptHandler.
+// NewFulfillHandler is the constructor function for FulfillHandler.
 // Arguments:
 // c: A reference to the application's global configuration.
 // db: A reference to a database connection.
 // Returns:
-// A new UploadScriptHandler that can be bound to a router.
-func NewUploadScriptHandler(c *config.Config, db *sql.DB) UploadScriptHandler {
-	return UploadScriptHandler{
+// A new FulfillHandler that can be bound to a router.
+func NewFulfillHandler(c *config.Config, db *sql.DB) FulfillHandler {
+	return FulfillHandler{
 		cfg: c,
 		db:  db,
 	}
-}
-
-// NewUploadPageHandler is the constructor function for UploadPageHandler.
-// Arguments:
-// cfg: A reference to the application's global configuration.
-// Returns:
-// A new UploadPageHandler that can be bound to a router.
-func NewUploadPageHandler(cfg *config.Config, db *sql.DB) UploadPageHandler {
-	return UploadPageHandler{
-		cfg:       cfg,
-		db:        db,
-		Successes: []string{},
-	}
-}
-
-// PushSuccessMsg adds a new message that will be displayed on the page served by the
-// handler to indicate a successful operation.
-// Arguments:
-// msg: A success message to display to the user.
-func (h *UploadPageHandler) PushSuccessMsg(msg string) {
-	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP handles file uploads containing new monitor scripts.
 // Arguments:
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
-func (h UploadScriptHandler) ServeHTTP(
+func (h FulfillHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	// Check that the request is being made by an authenticated administrator.
 	fmt.Println(req.Cookies())
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Extract inputs from the form.
@@ -104,20 +72,20 @@ func (h UploadScriptHandler) ServeHTTP(
 	ext, ftErr := filetypeExtension(filetype)
 	if ftErr != nil || parseErr1 != nil || parseErr2 != nil || parseErr3 != nil {
 		fmt.Println(ftErr)
-		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, true)
 		return
 	}
 	// Find the request that is being fulfilled to establish relational data.
 	request, findErr := models.FindRequest(h.db, requestID)
 	if findErr != nil {
 		fmt.Println("no such request", requestID, "ERROR", findErr)
-		BadRequest(res, req, h.cfg, errGenericInvalidData, true, true)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrGenericInvalidData, true, true)
 		return
 	}
 	file, _, openErr := req.FormFile("script")
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		BadRequest(res, req, h.cfg, errCreateFile, true, true)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrCreateFile, true, true)
 		return
 	}
 	defer file.Close()
@@ -126,7 +94,7 @@ func (h UploadScriptHandler) ServeHTTP(
 	toDisk, openErr := os.Create(filename)
 	if openErr != nil {
 		fmt.Printf("Error: %v\n", openErr)
-		InternalError(res, req, h.cfg, errCreateFile, true, true)
+		fail.InternalError(res, req, h.cfg, handlers.ErrCreateFile, true, true)
 		return
 	}
 	defer toDisk.Close()
@@ -144,57 +112,12 @@ func (h UploadScriptHandler) ServeHTTP(
 	saveErr := monitor.Save(h.db)
 	if saveErr != nil {
 		fmt.Println(saveErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
 		return
 	}
-	handler := NewUploadPageHandler(h.cfg, h.db)
+	handler := NewFulfillPageHandler(h.cfg, h.db)
 	handler.PushSuccessMsg(fmt.Sprintf("Successfully created a new monitor script with ID %d", monitor.ID()))
 	handler.ServeHTTP(res, req)
-}
-
-// ServeHTTP serves a page that administrators can use to upload new
-// monitor scripts through.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
-func (h UploadPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-	// Check that the request is coming from an authenticated archiver.
-	cookie, err := req.Cookie(auth.SessionCookieName)
-	if err != nil {
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
-		return
-	}
-	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
-	if err != nil {
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
-		return
-	}
-	requestIDs, found := req.URL.Query()["id"]
-	if !found || len(requestIDs) == 0 {
-		fmt.Println("Need a request id")
-		BadRequest(res, req, h.cfg, errors.New("missing request id url parameter"), true, activeUser.IsAdmin())
-		return
-	}
-	requestID, parseErr := strconv.Atoi(requestIDs[0])
-	if parseErr != nil {
-		fmt.Println("Need a request valid id")
-		BadRequest(res, req, h.cfg, errGenericInvalidData, true, activeUser.IsAdmin())
-		return
-	}
-	t, err := template.ParseFiles(
-		path.Join(h.cfg.TemplateDir, uploadPage),
-		path.Join(h.cfg.TemplateDir, headTemplate),
-		path.Join(h.cfg.TemplateDir, navTemplate))
-	if err != nil {
-		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
-		return
-	}
-	t.Execute(res, struct {
-		CreatedFor  int
-		LoggedIn    bool
-		UserIsAdmin bool
-		Successes   []string
-	}{requestID, true, activeUser.IsAdmin(), h.Successes})
 }
 
 // generateUniqueFilename produces a filename that is guaranteed to be unique.

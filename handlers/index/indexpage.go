@@ -1,9 +1,11 @@
-package handlers
+package index
 
 import (
-	"../auth"
-	"../config"
-	"../models"
+	"../"
+	"../../auth"
+	"../../config"
+	"../../models"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -15,19 +17,19 @@ import (
 // The name of the index HTML template file to serve to users.
 const indexPage string = "index.html"
 
-// IndexHandler implements http.ServeHTTP to load and serve a simple index
+// FrontPageHandler implements http.ServeHTTP to load and serve a simple index
 // page to users.
-type IndexHandler struct {
+type FrontPageHandler struct {
 	cfg       *config.Config
 	db        *sql.DB
 	Successes []string
 }
 
-// NewIndexHandler is the constructor function for IndexHandler.
+// NewFrontPageHandler is the constructor function for FrontPageHandler.
 // Arguments:
 // cfg: A reference to the application's global configuration.
-func NewIndexHandler(cfg *config.Config, db *sql.DB) IndexHandler {
-	return IndexHandler{
+func NewFrontPageHandler(cfg *config.Config, db *sql.DB) FrontPageHandler {
+	return FrontPageHandler{
 		cfg:       cfg,
 		db:        db,
 		Successes: []string{},
@@ -38,15 +40,15 @@ func NewIndexHandler(cfg *config.Config, db *sql.DB) IndexHandler {
 // handler to indicate a successful operation.
 // Arguments:
 // msg: A success message to display to the user.
-func (h *IndexHandler) PushSuccessMsg(msg string) {
+func (h *FrontPageHandler) PushSuccessMsg(msg string) {
 	h.Successes = append(h.Successes, msg)
 }
 
-// ServeHTTP is implemented by IndexHandler to serve an index page to users.
+// ServeHTTP is implemented by FrontPageHandler to serve an index page to users.
 // Arguments:
 // res: Provided by the net/http server.
 // req: Provided by the net/http server.
-func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (h FrontPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	loggedIn := false
 	isAdmin := false
 	cookie, err := req.Cookie(auth.SessionCookieName)
@@ -59,11 +61,11 @@ func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	t, loadErr := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, indexPage),
-		path.Join(h.cfg.TemplateDir, headTemplate),
-		path.Join(h.cfg.TemplateDir, navTemplate))
+		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
 	if loadErr != nil {
 		fmt.Println("failed to load template", loadErr)
-		InternalError(res, req, h.cfg, errTemplateLoad, loggedIn, isAdmin)
+		fail.InternalError(res, req, h.cfg, errTemplateLoad, loggedIn, isAdmin)
 		return
 	}
 	t.Execute(res, struct {

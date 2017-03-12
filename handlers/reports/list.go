@@ -1,9 +1,11 @@
-package handlers
+package reports
 
 import (
-	"../auth"
-	"../config"
-	"../models"
+	"../"
+	"../../auth"
+	"../../config"
+	"../../models"
+	"../fail"
 
 	"database/sql"
 	"fmt"
@@ -17,22 +19,22 @@ import (
 // and report information to be displayed to administrators.
 const reportsPage string = "reports.html"
 
-// ReportPageHandler implements net/http.ServeHTTP to serve a page to
+// ListHandler implements net/http.ServeHTTP to serve a page to
 // administrators containing information about monitors that miru is
 // running and data the scripts are reporting.
-type ReportPageHandler struct {
+type ListHandler struct {
 	cfg *config.Config
 	db  *sql.DB
 }
 
-// NewReportPageHandler is the constructor function for a ReportPageHandler.
+// NewListHandler is the constructor function for a ListHandler.
 // Arguments:
 // cfg: The application's global configuration.
 // db: A database connection.
 // Returns:
-// A new ReportPageHandler that can be bound to a router.
-func NewReportPageHandler(cfg *config.Config, db *sql.DB) ReportPageHandler {
-	return ReportPageHandler{
+// A new ListHandler that can be bound to a router.
+func NewListHandler(cfg *config.Config, db *sql.DB) ListHandler {
+	return ListHandler{
 		cfg: cfg,
 		db:  db,
 	}
@@ -42,25 +44,25 @@ func NewReportPageHandler(cfg *config.Config, db *sql.DB) ReportPageHandler {
 // Arguments:
 // res: Provided by the net/http server, used to write the response.
 // req: Provided by the net/http server, contains information about the request.
-func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
+func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated administrator.
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {
 		fmt.Println("Could not find cookie", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, false, false)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, false, false)
 		return
 	}
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)
-		BadRequest(res, req, h.cfg, errNotAllowed, err == nil, false)
+		fail.BadRequest(res, req, h.cfg, handlers.ErrNotAllowed, err == nil, false)
 		return
 	}
 	// Load information about existing monitors and the last report each generated.
 	monitors, findErr := models.ListMonitors(h.db)
 	if findErr != nil {
 		fmt.Println("Could not get monitors", findErr)
-		InternalError(res, req, h.cfg, errDatabaseOperation, true, true)
+		fail.InternalError(res, req, h.cfg, handlers.ErrDatabaseOperation, true, true)
 		return
 	}
 	type Data struct {
@@ -95,11 +97,11 @@ func (h ReportPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request)
 	// Serve the page with the data about monitors and their recent reports.
 	t, err := template.ParseFiles(
 		path.Join(h.cfg.TemplateDir, reportsPage),
-		path.Join(h.cfg.TemplateDir, headTemplate),
-		path.Join(h.cfg.TemplateDir, navTemplate))
+		path.Join(h.cfg.TemplateDir, handlers.HeadTemplate),
+		path.Join(h.cfg.TemplateDir, handlers.NavTemplate))
 	if err != nil {
 		fmt.Println("Error parsing reports page template", err)
-		InternalError(res, req, h.cfg, errTemplateLoad, true, true)
+		fail.InternalError(res, req, h.cfg, handlers.ErrTemplateLoad, true, true)
 		return
 	}
 	t.Execute(res, struct {

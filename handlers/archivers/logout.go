@@ -1,11 +1,11 @@
-package handlers
+package archivers
 
 import (
 	"time"
 
-	"../auth"
-	"../config"
-	"../models"
+	"../../auth"
+	"../../config"
+	"../../models"
 
 	"database/sql"
 	"fmt"
