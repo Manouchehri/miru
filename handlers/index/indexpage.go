@@ -55,6 +55,7 @@ func (h FrontPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) 
 	if err == nil {
 		activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 		if err == nil {
+			fmt.Println("Found session owner", activeUser)
 			loggedIn = true
 			isAdmin = activeUser.IsAdmin()
 		}

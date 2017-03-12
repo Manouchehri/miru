@@ -59,6 +59,7 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return
 	}
+	fmt.Println("Found cookie", cookie.Value)
 	activeUser, err := models.FindSessionOwner(h.db, cookie.Value)
 	if err != nil || !activeUser.IsAdmin() {
 		fmt.Println("Could not get cookie owner", err)

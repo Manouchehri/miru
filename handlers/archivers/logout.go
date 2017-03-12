@@ -55,6 +55,7 @@ func (h LogoutHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	http.SetCookie(res, &http.Cookie{
 		Name:    auth.SessionCookieName,
 		Value:   "deleted",
+		Path:    "/",
 		Expires: time.Unix(0, 0),
 	})
 	http.Redirect(res, req, "/", http.StatusSeeOther)
