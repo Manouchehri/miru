@@ -11,6 +11,9 @@ type Config struct {
 	TemplateDir string // The directory containing HTML page templates.
 	Database    string // The connection string for the database.
 	ScriptDir   string // The directory to save monitor scripts to.
+	MGDomain    string // The domain registered to Mailgun to send emails through.
+	MGAPIKey    string // Your Mailgun API key.
+	MGPublicKey string // Your Mailgun public key.
 }
 
 // MustLoad tries to load a configuration and panics if it cannot do so.
@@ -22,5 +25,8 @@ func MustLoad() Config {
 		TemplateDir: "templates",
 		Database:    "./miru.db",
 		ScriptDir:   "monitorscripts",
+		MGDomain:    "",
+		MGAPIKey:    "",
+		MGPublicKey: "",
 	}
 }
