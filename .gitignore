@@ -23,6 +23,9 @@ _testmain.go
 *.test
 *.prof
 
+# Configuration file
+config/config.json
+
 # Compiled binary
 miru
 
