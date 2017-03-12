@@ -116,5 +116,7 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		InternalError(res, req, h.cfg, errDatabaseOperation, false, false)
 		return
 	}
-	res.Write([]byte(fmt.Sprintf("Successfully registered %s", email)))
+	handler := NewIndexHandler(h.cfg, h.db)
+	handler.PushSuccessMsg(fmt.Sprintf("You have successfully registered and can now log in with %s.", email))
+	handler.ServeHTTP(res, req)
 }

@@ -18,8 +18,9 @@ const indexPage string = "index.html"
 // IndexHandler implements http.ServeHTTP to load and serve a simple index
 // page to users.
 type IndexHandler struct {
-	cfg *config.Config
-	db  *sql.DB
+	cfg       *config.Config
+	db        *sql.DB
+	Successes []string
 }
 
 // NewIndexHandler is the constructor function for IndexHandler.
@@ -27,9 +28,18 @@ type IndexHandler struct {
 // cfg: A reference to the application's global configuration.
 func NewIndexHandler(cfg *config.Config, db *sql.DB) IndexHandler {
 	return IndexHandler{
-		cfg: cfg,
-		db:  db,
+		cfg:       cfg,
+		db:        db,
+		Successes: []string{},
 	}
+}
+
+// PushSuccessMsg adds a new message that will be displayed on the page served by the
+// handler to indicate a successful operation.
+// Arguments:
+// msg: A success message to display to the user.
+func (h *IndexHandler) PushSuccessMsg(msg string) {
+	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP is implemented by IndexHandler to serve an index page to users.
@@ -60,5 +70,5 @@ func (h IndexHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		LoggedIn    bool
 		UserIsAdmin bool
 		Successes   []string
-	}{loggedIn, isAdmin, []string{}})
+	}{loggedIn, isAdmin, h.Successes})
 }
