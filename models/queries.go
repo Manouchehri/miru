@@ -76,6 +76,15 @@ create table if not exists reports (
 	foreign key(created_by) references monitors(id)
 );`
 
+// QInitAntiCSRFTokensTable is an SQL query that creates the table we use
+// for anti CSRF tokens, which we will expect to be submitted with all
+// forms for sensitive actions.
+const QInitAntiCSRFTokensTable = `
+create table if not exists anti_csrf_tokens (
+  token varchar(255) primary key,
+  created_at timestamp
+ );`
+
 // QSaveMonitor is an SQL query that saves a new monitor.
 const QSaveMonitor = `
 insert into monitors (
@@ -257,7 +266,7 @@ insert into login_attempts(
 // QDeleteLoginAttempt is an SQL query that deletes a login attempt.
 const QDeleteLoginAttempt = `delete from login_attempts where id = $1;`
 
-// QFindLoginAttemptsBySource is an SQL query that finds all login attempts made
+// QFindLoginAttemptsBySender is an SQL query that finds all login attempts made
 // by a user from a given IP address.
 const QFindLoginAttemptsBySender = `
 select id, email_address, made_at
@@ -270,3 +279,19 @@ const QFindLoginAttemptsByEmail = `
 select id, sender_ip, made_at
 from login_attempts
 where email_address = $1;`
+
+// QFindAntiCSRFToken is an SQL query that finds an anti-csrf token's created time
+// given the token value to check if it exists.
+const QFindAntiCSRFToken = `
+select created_at
+from anti_csrf_tokens
+where token = $1;`
+
+// QSaveAntiCSRFToken creates a new anti-CSRF token.
+const QSaveAntiCSRFToken = `
+insert into anti_csrf_tokens (
+  token, created_at
+ ) values ($1, $2);`
+
+// QDeleteAntiCSRFToken is an SQL query that deletes a token.
+const QDeleteAntiCSRFToken = `delete from anti_csrf_tokens where token = $1;`
