@@ -40,6 +40,11 @@ func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	email := req.FormValue("email")
 	password := req.FormValue("password")
+	csrfToken := req.FormValue("csrfToken")
+	if !models.VerifyAndDeleteAntiCSRFToken(h.db, csrfToken) {
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
+		return
+	}
 	// Prevent people from trying to guess the password to an account.
 	attemptedLoginsByUser, _ := models.FindLoginAttemptsBySender(h.db, req.RemoteAddr)
 	attemptedLoginsForEmail, _ := models.FindLoginAttemptsByEmail(h.db, email)

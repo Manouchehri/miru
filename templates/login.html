@@ -13,6 +13,7 @@
         <div>
           <label for="password">Password</label>
           <input type="password" name="password" id="password" />
+          <input type="hidden" name="csrfToken" value="{{.CSRFToken}}" />
         </div>
         <div>
           <input type="submit" id="loginbutton" value="Login" />
