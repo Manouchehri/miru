@@ -18,6 +18,10 @@ const SessionCookieName string = "mirusession"
 // for a user to attempt to login to any account.
 const MaxLoginAttempts int = 5
 
+// AntiCSRFTokenLength is the number of bytes of random data to read in
+// order to generate an anti-csrf token.
+const AntiCSRFTokenLength uint = 32
+
 // maxGenerateTokenAttempts is the maximum number of times to attempt to
 // generate a unique session token.  If GenerateUniqueSessionToken fails to
 // check the database this many times to see if a token generated exists,

@@ -25,6 +25,7 @@
             <td>
               <form action="/requests/reject" method="POST">
                 <input type="hidden" name="requestID" value="{{.RequestID}}" />
+                <input type="hidden" name="csrfToken" value="{{.CSRFToken}}" />
                 <a href="#" class="submitbtn">Reject</a>
               </form>
             </td>

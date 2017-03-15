@@ -54,6 +54,12 @@ func (h RejectHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	// Extract inputs from the submitted form.
 	req.ParseForm()
+	csrfToken := req.FormValue("csrfToken")
+	fmt.Println("Got ANTI-CSRF token", csrfToken)
+	if !models.VerifyAndDeleteAntiCSRFToken(h.db, csrfToken) {
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
+		return
+	}
 	requestID := req.FormValue("requestID")
 	id, parseErr := strconv.Atoi(requestID)
 	if parseErr != nil {

@@ -77,6 +77,7 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		MadeBy       string
 		URL          string
 		Instructions string
+		CSRFToken    string
 		RequestID    int
 	}
 	pendingRequests := []Data{}
@@ -90,10 +91,12 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		} else {
 			fmt.Println("Error finding request creator", err)
 		}
+		csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
 		pendingRequests = append(pendingRequests, Data{
 			MadeBy:       madeBy,
 			URL:          request.URL(),
 			Instructions: request.Instructions(),
+			CSRFToken:    csrfToken.Token(),
 			RequestID:    request.ID(),
 		})
 	}

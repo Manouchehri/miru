@@ -31,6 +31,18 @@ func GenerateAntiCSRFToken(db *sql.DB, tokenLen uint) AntiCSRFToken {
 	}
 }
 
+// VerifyAndDeleteAntiCSRFToken attempts to find an anti-csrf token and delete it
+// if it exists. It returns true if the token was found and deleted successfully,
+// or else false.
+func VerifyAndDeleteAntiCSRFToken(db *sql.DB, token string) bool {
+	t, findErr := FindAntiCSRFToken(db, token)
+	if findErr != nil {
+		return false
+	}
+	deleteErr := t.Delete(db)
+	return deleteErr == nil
+}
+
 // FindAntiCSRFToken attempts to find an anti-csrf token in the database.
 func FindAntiCSRFToken(db *sql.DB, token string) (AntiCSRFToken, error) {
 	t := AntiCSRFToken{}
