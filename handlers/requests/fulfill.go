@@ -65,6 +65,11 @@ func (h FulfillHandler) ServeHTTP(
 		return
 	}
 	// Extract inputs from the form.
+	csrfToken := req.FormValue("csrfToken")
+	if !models.VerifyAndDeleteAntiCSRFToken(h.db, csrfToken) {
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
+		return
+	}
 	waitPeriod, parseErr1 := strconv.Atoi(req.FormValue("waitPeriod"))
 	expectedRuntime, parseErr2 := strconv.Atoi(req.FormValue("expectedRuntime"))
 	requestID, parseErr3 := strconv.Atoi(req.FormValue("satisfiedRequest"))

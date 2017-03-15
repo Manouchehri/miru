@@ -86,10 +86,12 @@ func (h FulfillPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 		fail.InternalError(res, req, h.cfg, common.ErrTemplateLoad, true, true)
 		return
 	}
+	csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
 	t.Execute(res, struct {
 		CreatedFor  int
 		LoggedIn    bool
 		UserIsAdmin bool
+		CSRFToken   string
 		Successes   []string
-	}{requestID, true, activeUser.IsAdmin(), h.Successes})
+	}{requestID, true, activeUser.IsAdmin(), csrfToken.Token(), h.Successes})
 }
