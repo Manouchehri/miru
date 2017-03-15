@@ -74,16 +74,24 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	type Data struct {
-		ID      int
-		Email   string
-		IsAdmin bool
+		ID        int
+		Email     string
+		CSRFToken string
+		IsAdmin   bool
 	}
 	data := []Data{}
 	for _, archiver := range archivers {
+		csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
+		saveErr := csrfToken.Save(h.db)
+		if saveErr != nil {
+			fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
+			return
+		}
 		data = append(data, Data{
-			ID:      archiver.ID(),
-			Email:   archiver.Email(),
-			IsAdmin: archiver.IsAdmin(),
+			ID:        archiver.ID(),
+			Email:     archiver.Email(),
+			CSRFToken: csrfToken.Token(),
+			IsAdmin:   archiver.IsAdmin(),
 		})
 	}
 	// Serve the page with the data about archivers.

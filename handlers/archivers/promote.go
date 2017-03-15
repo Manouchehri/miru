@@ -52,6 +52,11 @@ func (h PromoteHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	// Extract the data submitted in the form.
 	req.ParseForm()
+	csrfToken := req.FormValue("csrfToken")
+	if !models.VerifyAndDeleteAntiCSRFToken(h.db, csrfToken) {
+		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
+		return
+	}
 	archiverID := req.FormValue("archiverID")
 	id, parseErr := strconv.Atoi(archiverID)
 	if parseErr != nil {
