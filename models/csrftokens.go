@@ -74,13 +74,13 @@ func generateToken(db *sql.DB, tokenLen uint) string {
 	buffer := make([]byte, tokenLen)
 	token := ""
 	for {
-		_, err := rand.Read(buffer)
-		if err != nil {
+		bytesRead, err := rand.Read(buffer)
+		if err != nil || uint(bytesRead) < tokenLen {
 			continue
 		}
 		token = hex.EncodeToString(buffer)
 		_, err = FindAntiCSRFToken(db, token)
-		if err == nil {
+		if err != nil {
 			break
 		}
 	}
