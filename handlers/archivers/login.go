@@ -41,6 +41,7 @@ func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	email := req.FormValue("email")
 	password := req.FormValue("password")
 	csrfToken := req.FormValue("csrfToken")
+	fmt.Println("Got CSRF token", csrfToken)
 	if !models.VerifyAndDeleteAntiCSRFToken(h.db, csrfToken) {
 		fail.BadRequest(res, req, h.cfg, common.ErrNotAllowed, false, false)
 		return

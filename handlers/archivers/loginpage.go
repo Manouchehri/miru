@@ -50,6 +50,11 @@ func (h LoginPageHandler) ServeHTTP(
 		return
 	}
 	csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
+	saveErr := csrfToken.Save(h.db)
+	if saveErr != nil {
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, false, false)
+		return
+	}
 	t.Execute(res, struct {
 		LoggedIn    bool
 		UserIsAdmin bool

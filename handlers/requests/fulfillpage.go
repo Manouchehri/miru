@@ -87,6 +87,11 @@ func (h FulfillPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 		return
 	}
 	csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
+	saveErr := csrfToken.Save(h.db)
+	if saveErr != nil {
+		fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
+		return
+	}
 	t.Execute(res, struct {
 		CreatedFor  int
 		LoggedIn    bool

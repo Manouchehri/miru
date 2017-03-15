@@ -92,6 +92,10 @@ func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			fmt.Println("Error finding request creator", err)
 		}
 		csrfToken := models.GenerateAntiCSRFToken(h.db, auth.AntiCSRFTokenLength)
+		saveErr := csrfToken.Save(h.db)
+		if saveErr != nil {
+			fail.InternalError(res, req, h.cfg, common.ErrDatabaseOperation, true, true)
+		}
 		pendingRequests = append(pendingRequests, Data{
 			MadeBy:       madeBy,
 			URL:          request.URL(),
