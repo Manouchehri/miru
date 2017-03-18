@@ -13,13 +13,10 @@ const configFilename string = "config.json"
 // It is very likely that most request handler implementations will want to
 // have a reference to a copy of this.
 type Config struct {
-	BindAddress string `json:"bindAddress"`      // The address and port to bind the server to.
-	TemplateDir string `json:"templateDir"`      // The directory containing HTML page templates.
-	Database    string `json:"database"`         // The connection string for the database.
-	ScriptDir   string `json:"scriptDir"`        // The directory to save monitor scripts to.
-	MGDomain    string `json:"mailgunDomain"`    // The domain registered to Mailgun to send emails through.
-	MGAPIKey    string `json:"mailgunAPIKey"`    // Your Mailgun API key.
-	MGPublicKey string `json:"mailgunPublicKey"` // Your Mailgun public key.
+	BindAddress string `json:"bindAddress"` // The address and port to bind the server to.
+	TemplateDir string `json:"templateDir"` // The directory containing HTML page templates.
+	Database    string `json:"database"`    // The connection string for the database.
+	ScriptDir   string `json:"scriptDir"`   // The directory to save monitor scripts to.
 }
 
 // MustLoad tries to load a configuration and panics if it cannot do so.
