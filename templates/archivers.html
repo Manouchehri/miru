@@ -19,11 +19,13 @@
             <td>{{.Email}}</td>
             <td>{{.IsAdmin}}</td>
             <td>
+              {{if not .IsAdmin}}
               <form method="POST" action="/archivers/promote">
                 <input type="hidden" name="archiverID" value="{{.ID}}" />
                 <input type="hidden" name="csrfToken" value="{{.CSRFToken}}" />
                 <a href="#" class="submitbtn">Make Admin</a>
               </form>
+              {{end}}
             </td>
           </tr>
           {{end}}
