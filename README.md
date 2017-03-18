@@ -7,7 +7,8 @@ Miru functions as something of a "glorified [cron job](https://en.wikipedia.org/
 
 ## Getting Started
 
-1. Read our [code of conduct]() and get in touch on the [archivers.slack.com](https://archivers.slack.com/) channel [(get invite)](https://archivers-slack.herokuapp.com/).
-2. Learn how to [build and run Miru locally]() for development.
-3. Read the project's [contributing guide]() to and [outstanding issues](https://github.com/zsck/miru/issues) learn how to help build Miru.
-4. Read about [how to deploy Miru]() and related advice.
+1. Read our [code of conduct](https://github.com/zsck/miru/blob/master/code_of_conduct.md) and get in touch on the [archivers.slack.com](https://archivers.slack.com/) channel [(get invite)](https://archivers-slack.herokuapp.com/).
+2. Learn how to [build and run Miru locally](https://github.com/zsck/miru/blob/master/docs/setup.md) for development.
+3. Read the project's [contributing guide](https://github.com/zsck/miru/blob/master/CONTRIBUTING.md) to and [outstanding issues](https://github.com/zsck/miru/issues) learn how to help build Miru.
+4. Read some [advice for deploying](https://github.com/zsck/miru/blob/master/docs/using-miru.md) Miru.
+5. Learn how to [use Miru](https://github.com/zsck/miru/blob/master/docs/using-miru.md) to start monitoring websites for changes.
