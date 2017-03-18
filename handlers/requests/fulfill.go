@@ -32,11 +32,6 @@ type FulfillHandler struct {
 }
 
 // NewFulfillHandler is the constructor function for FulfillHandler.
-// Arguments:
-// c: A reference to the application's global configuration.
-// db: A reference to a database connection.
-// Returns:
-// A new FulfillHandler that can be bound to a router.
 func NewFulfillHandler(c *config.Config, db *sql.DB) FulfillHandler {
 	return FulfillHandler{
 		cfg: c,
@@ -45,9 +40,6 @@ func NewFulfillHandler(c *config.Config, db *sql.DB) FulfillHandler {
 }
 
 // ServeHTTP handles file uploads containing new monitor scripts.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h FulfillHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	// Check that the request is being made by an authenticated administrator.
@@ -128,11 +120,6 @@ func (h FulfillHandler) ServeHTTP(
 // generateUniqueFilename produces a filename that is guaranteed to be unique.
 // It continuously generates 16-byte script names, encoded as hex, until one
 // is created that isn't already taken.
-// Arguments:
-// scriptDir: The directory that monitor scripts are saved to.
-// ext: The filetype extension to append to the end of the filename.
-// Returns:
-// A filename that is guaranteed to be unique.
 func generateUniqueFilename(scriptDir string, ext string) string {
 	// We don't need cryptographically random names- pseudorandom will do.
 	rand.Seed(int64(time.Now().Unix()))
@@ -153,11 +140,6 @@ func generateUniqueFilename(scriptDir string, ext string) string {
 
 // Converts a filetype, the values in the upload form's filetype dropdown
 // menu, into the file type's extension.
-// Arguments:
-// The filetype specified in the script upload form.
-// Returns:
-// The file type's extension if the file type is supported, and an error in
-// the case that the file type is not supported.
 func filetypeExtension(filetype string) (string, error) {
 	switch filetype {
 	case "python":

@@ -29,10 +29,6 @@ type FulfillPageHandler struct {
 }
 
 // NewFulfillPageHandler is the constructor function for FulfillPageHandler.
-// Arguments:
-// cfg: A reference to the application's global configuration.
-// Returns:
-// A new FulfillPageHandler that can be bound to a router.
 func NewFulfillPageHandler(cfg *config.Config, db *sql.DB) FulfillPageHandler {
 	return FulfillPageHandler{
 		cfg:       cfg,
@@ -43,17 +39,12 @@ func NewFulfillPageHandler(cfg *config.Config, db *sql.DB) FulfillPageHandler {
 
 // PushSuccessMsg adds a new message that will be displayed on the page served by the
 // handler to indicate a successful operation.
-// Arguments:
-// msg: A success message to display to the user.
 func (h *FulfillPageHandler) PushSuccessMsg(msg string) {
 	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP serves a page that administrators can use to upload new
 // monitor scripts through.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h FulfillPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)

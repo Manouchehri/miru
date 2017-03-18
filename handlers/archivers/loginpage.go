@@ -23,11 +23,6 @@ type LoginPageHandler struct {
 }
 
 // NewLoginPageHandler is the constructor function for a LoginPageHandler.
-// Arguments:
-// cfg: The application's global configuration.
-// db: A database connection
-// Returns:
-// A new LoginPageHandler, which can be bound to a router.
 func NewLoginPageHandler(cfg *config.Config, db *sql.DB) LoginPageHandler {
 	return LoginPageHandler{
 		cfg: cfg,
@@ -36,9 +31,6 @@ func NewLoginPageHandler(cfg *config.Config, db *sql.DB) LoginPageHandler {
 }
 
 // ServeHTTP writes the login page to the requester.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h LoginPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	t, err := template.ParseFiles(

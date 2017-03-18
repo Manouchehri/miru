@@ -21,10 +21,6 @@ type RegisterPageHandler struct {
 
 // NewRegisterPageHandler is the constructor function for a new
 // RegisterPageHandler.
-// Arguments:
-// cfg: A reference to the application's global configuration.
-// Returns:
-// A new RegisterPageHandler that can be bound to a router.
 func NewRegisterPageHandler(cfg *config.Config) RegisterPageHandler {
 	return RegisterPageHandler{
 		cfg: cfg,
@@ -32,9 +28,6 @@ func NewRegisterPageHandler(cfg *config.Config) RegisterPageHandler {
 }
 
 // ServeHTTP writes the register page to the requester.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h RegisterPageHandler) ServeHTTP(
 	res http.ResponseWriter, req *http.Request) {
 	t, err := template.ParseFiles(

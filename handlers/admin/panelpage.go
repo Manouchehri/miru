@@ -27,11 +27,6 @@ type PanelPageHandler struct {
 }
 
 // NewPanelPageHandler is the constructor function for an
-// Arguments:
-// cfg: The application's global configuration.
-// db: A database connection.
-// Returns:
-// A new PanelPageHandler that can be bound to a router.
 func NewPanelPageHandler(cfg *config.Config, db *sql.DB) PanelPageHandler {
 	return PanelPageHandler{
 		cfg: cfg,
@@ -39,6 +34,8 @@ func NewPanelPageHandler(cfg *config.Config, db *sql.DB) PanelPageHandler {
 	}
 }
 
+// ServeHTTP serves the administrator panel page, which contains links to other
+// pages that admins can use to perform various actions.
 func (h PanelPageHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated administrator.
 	cookie, err := req.Cookie(auth.SessionCookieName)

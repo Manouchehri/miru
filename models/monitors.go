@@ -37,15 +37,6 @@ type Monitor struct {
 
 // NewMonitor is the constructor for the monitor type. When a new script is
 // uploaded to monitor a website, a monitor should be created using NewMonitor.
-// Arguments:
-// creator: The administrator that uploaded the update checking script.
-// requestedBy: The request that is being fulfilled.
-// cmd: The interpreter used to run the script.
-// filePath: The path to the script saved on disk.
-// waitBetweenRuns: The amount of time (minutes) to wait between script runs.
-// expectedRuntime: The amount of time (seconds) expected to run the script.
-// Returns:
-// A new Monitor containing the provided data.
 func NewMonitor(
 	creator Archiver,
 	requestedBy Request,
@@ -70,11 +61,6 @@ func NewMonitor(
 }
 
 // ListMonitors attempts to get a list of all of the monitors registered.
-// Arguments:
-// db: A database connection.
-// Returns:
-// A list of all monitors in the dabatase, or as many as can be read until an
-// error occurs. The first error encountered trying to read data is returned.
 func ListMonitors(db *sql.DB) ([]Monitor, error) {
 	allMonitors := []Monitor{}
 	rows, err := db.Query(QListMonitors)
@@ -97,11 +83,6 @@ func ListMonitors(db *sql.DB) ([]Monitor, error) {
 // FindReadyMonitors finds monitors that we've waited long enough to run again.
 // The function will return the first error it encounters, along with any
 // monitors retrieved until that point.
-// Arguments:
-// db: A database connection.
-// limit: The maximum number of monitors to fetch.
-// Returns:
-// An array of monitors that can be run, and the first error if one occurs.
 func FindReadyMonitors(db *sql.DB, limit uint) ([]Monitor, error) {
 	allMonitors := make([]Monitor, limit)
 	monitorsFound := 0
@@ -143,8 +124,6 @@ func (m Monitor) CreatedFor() int {
 }
 
 // ID is a getter function for a monitor's unique identifier.
-// Returns:
-// The monitor's id.
 func (m Monitor) ID() int {
 	return m.id
 }
@@ -155,8 +134,6 @@ func (m *Monitor) SetLastRun() {
 }
 
 // LastRun gets the time that the monitor was last run.
-// Returns:
-// The last time the monitor was run.
 func (m Monitor) LastRun() time.Time {
 	return m.lastRan
 }

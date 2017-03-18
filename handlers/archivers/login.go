@@ -19,11 +19,6 @@ type LoginHandler struct {
 }
 
 // NewLoginHandler is the constructor function for a LoginHandler.
-// Arguments:
-// cfg: The application's global configuration.
-// db: A database connection.
-// Returns:
-// A new LoginHandler, which can be bound to a router.
 func NewLoginHandler(cfg *config.Config, db *sql.DB) LoginHandler {
 	return LoginHandler{
 		cfg: cfg,
@@ -33,9 +28,6 @@ func NewLoginHandler(cfg *config.Config, db *sql.DB) LoginHandler {
 
 // ServeHTTP handles a login form POST request from the user and attempts to
 // establish a new session for them if the supplied credentials are correct.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h LoginHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	email := req.FormValue("email")

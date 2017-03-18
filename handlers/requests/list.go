@@ -27,11 +27,6 @@ type ListHandler struct {
 }
 
 // NewListHandler is the constructor function for a ListHandler.
-// Arguments:
-// cfg: The application's global configuration.
-// db: A database connection.
-// Returns:
-// A new ListHandler that can be bound to a router.
 func NewListHandler(cfg *config.Config, db *sql.DB) ListHandler {
 	return ListHandler{
 		cfg:       cfg,
@@ -42,16 +37,11 @@ func NewListHandler(cfg *config.Config, db *sql.DB) ListHandler {
 
 // PushSuccessMsg adds a new message that will be displayed on the page served by the
 // handler to indicate a successful operation.
-// Arguments:
-// msg: A success message to display to the user.
 func (h *ListHandler) PushSuccessMsg(msg string) {
 	h.Successes = append(h.Successes, msg)
 }
 
 // ServeHTTP serves a page for administrators to view pending monitor requests.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h ListHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated administrator.
 	cookie, err := req.Cookie(auth.SessionCookieName)

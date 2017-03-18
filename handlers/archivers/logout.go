@@ -20,10 +20,6 @@ type LogoutHandler struct {
 }
 
 // NewLogoutHandler is the constructor function for a new LogoutHandler.
-// Arguments:
-// db: A database connection.
-// Returns:
-// A new LoginHandler that can be bound to a router.
 func NewLogoutHandler(cfg *config.Config, db *sql.DB) LogoutHandler {
 	return LogoutHandler{
 		cfg: cfg,
@@ -32,9 +28,6 @@ func NewLogoutHandler(cfg *config.Config, db *sql.DB) LogoutHandler {
 }
 
 // ServeHTTP handles requests to log a user out.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h LogoutHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	cookie, err := req.Cookie(auth.SessionCookieName)
 	if err != nil {

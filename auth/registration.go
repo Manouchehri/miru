@@ -19,8 +19,6 @@ type PasswordComplexityChecker struct {
 // DefaultPasswordComplexityChecker constructs a new PasswordComplexityChecker that is
 // configured to require at least 10 characters with 1 lowercase, 1 uppercase,
 // 1 symbol, and 1 number.
-// Returns:
-// A new PasswordComplexityChecker.
 func DefaultPasswordComplexityChecker() PasswordComplexityChecker {
 	return PasswordComplexityChecker{
 		MinLength:    10,
@@ -32,10 +30,6 @@ func DefaultPasswordComplexityChecker() PasswordComplexityChecker {
 }
 
 // IsPasswordSecure checks if a given password passes the security requirements configured.
-// Arguments:
-// password: A password provided by a user.
-// Returns:
-// True if the password passes the configured security requirements or else false.
 func (c PasswordComplexityChecker) IsPasswordSecure(password string) bool {
 	var lc, uc, s, n uint
 	for _, character := range password {
@@ -59,10 +53,6 @@ func (c PasswordComplexityChecker) IsPasswordSecure(password string) bool {
 // SecurePassword applies a random salt to and then hashes a password with a
 // cryptographically secure password hashing algorithm with a known-secure
 // (as of 20/02/2017) configuration.
-// Arguments:
-// password: A plaintext password.
-// Returns:
-// The hashes password, suitable to be stored in a database.
 func SecurePassword(password string) string {
 	hashed, err := auth.GenerateFromPassword(
 		[]byte(password), auth.DefaultHashConfiguration())
@@ -77,10 +67,6 @@ func SecurePassword(password string) string {
 // formatted reasonably. Determining whether every character is valid is
 // infeasible, so we'll just make sure the address is formatted like:
 //   <thing>@<domain>.<tld>[.<tld2>[.<tld3>...]]
-// Arguments:
-// email: The email address to validate
-// Returns:
-// True if the address has the basic format of an email address, or else false.
 func IsEmailValid(email string) bool {
 	parts := strings.Split(email, "@")
 	if len(parts) != 2 {

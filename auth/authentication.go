@@ -42,12 +42,6 @@ type CheckFn func(string) bool
 // session token and then checks whether the token is already in use.
 // The function will attempt to check the database maxGenerateTokenAttempts
 // times before producing an error.
-// Arguments:
-// length: The number of random bytes to use for the token.
-// taken: A CheckFn that can be used to determine if a token is taken.
-// Returns:
-// A unique session token if one is generated and not in use, else an error
-// if checking the database for the uniqueness of a token fails too many times.
 func GenerateUniqueSessionToken(length uint, taken CheckFn) (string, error) {
 	buffer := make([]byte, length)
 	readBytes, genErr := rand.Read(buffer)
@@ -71,11 +65,6 @@ func GenerateUniqueSessionToken(length uint, taken CheckFn) (string, error) {
 
 // IsPasswordCorrect determines whether a provided password matches a stored,
 // securely hashed password.
-// Arguments:
-// provided: A password provided by the user to login with.
-// stored: The password hash belonging to the archiver attempting to log in.
-// Returns:
-// True if the credentials are correct, else false.
 func IsPasswordCorrect(provided, stored string) bool {
 	return auth.CompareHashAndPassword([]byte(stored), []byte(provided)) == nil
 }

@@ -32,12 +32,6 @@ type Session struct {
 // NewSession is the constructor function for a new authenticated session,
 // which should only be created after verifying that a user's login
 // credentials are correct.
-// Arguments:
-// owner: The archiver on whose behalf the session is being created.
-// ipAddr: The IP address that the archiver is connecting from.
-// Returns:
-// A new Session, which, when saved, will have a token generated for it and
-// then be safe to store in a secure cookie.
 func NewSession(owner Archiver, ipAddr string) Session {
 	return Session{
 		id:        "",
@@ -49,11 +43,6 @@ func NewSession(owner Archiver, ipAddr string) Session {
 }
 
 // FindSession attempts to find a session for an authenticated archiver.
-// Arguments:
-// db: A database connection.
-// id: The session token to look for.
-// Returns:
-// A session if one with the provided id exists, else an error.
 func FindSession(db *sql.DB, id string) (Session, error) {
 	s := Session{}
 	err := db.QueryRow(QFindSession, id).Scan(
@@ -66,12 +55,6 @@ func FindSession(db *sql.DB, id string) (Session, error) {
 }
 
 // FindSessionByOwnerEmail attempts to find a session owned by an archiver.
-// Arguments:
-// db: A database connection.
-// email: The email address of an archiver.
-// Returns:
-// A session if one exists for the archiver, and an error if one occurs
-// reading from the database.
 func FindSessionByOwnerEmail(db *sql.DB, email string) (Session, error) {
 	s := Session{}
 	err := db.QueryRow(QFindSessionByOwnerEmail, email).Scan(
@@ -83,38 +66,26 @@ func FindSessionByOwnerEmail(db *sql.DB, email string) (Session, error) {
 }
 
 // ID is a getter function that gets the session's id/token.
-// Returns:
-// The session's random token string.
 func (s Session) ID() string {
 	return s.id
 }
 
 // Expires is a getter function that gets the session's expire time.
-// Returns:
-// The time that the session should cease to be considered valid.
 func (s Session) Expires() time.Time {
 	return s.expiresAt
 }
 
 // Owner is a getter function for a session's owner archiver ID.
-// Returns:
-// The ID of the archiver that owns the session.
 func (s Session) Owner() int {
 	return s.owner
 }
 
 // IsExpired checks if the session has expired.
-// Returns:
-// True if the session should be considered void.
 func (s Session) IsExpired() bool {
 	return s.expiresAt.After(time.Now())
 }
 
 // Save stores a new session token in the database after making a secure token.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error if one occurs trying to generate a token or save the session.
 func (s *Session) Save(db *sql.DB) error {
 	token, genErr := auth.GenerateUniqueSessionToken(
 		sessionTokenLength,
@@ -135,20 +106,12 @@ func (s *Session) Save(db *sql.DB) error {
 }
 
 // Update always produces an error.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error- cannot update sessions.
 func (s *Session) Update(db *sql.DB) error {
 	return errors.New("cannot update sessions")
 }
 
 // Delete removes a session token from the database, effectively logging an
 // archiver out of their account.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error if the session cannot be deleted.
 func (s *Session) Delete(db *sql.DB) error {
 	_, err := db.Exec(QDeleteSession, s.id)
 	return err

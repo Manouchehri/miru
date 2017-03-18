@@ -14,11 +14,6 @@ import (
 
 // RunMonitorScript executes a monitor script in a subprocess and writes either
 // a successful result or an error to a provided channel.
-// Arguments:
-// monitor: Information about the monitor script to run.
-// lastReport: The last report that the monitor generated.
-// result: A channel to write a result through. Can have a buffer of size 1.
-// err: A channel to write an error through. Can have a buffer of size 1.
 func RunMonitorScript(
 	monitor models.Monitor,
 	lastReport models.Report,

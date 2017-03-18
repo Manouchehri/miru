@@ -21,11 +21,6 @@ type RegisterHandler struct {
 }
 
 // NewRegisterHandler is the constructor function for a new RegisterHandler.
-// Arguments:
-// cfg: A reference to the application's global configuration.
-// db: A reference to a database connection.
-// Returns:
-// A new RegisterHandler that can be bound to a router.
 func NewRegisterHandler(cfg *config.Config, db *sql.DB) RegisterHandler {
 	return RegisterHandler{
 		cfg: cfg,
@@ -34,9 +29,6 @@ func NewRegisterHandler(cfg *config.Config, db *sql.DB) RegisterHandler {
 }
 
 // ServeHTTP handles POST requests containing an archiver's registration data.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	req.ParseForm()
 	email := req.FormValue("email")
@@ -60,9 +52,6 @@ func (h RegisterHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	archiver, _ := models.FindArchiverByEmail(h.db, email)
 	// We don't want to tell users if an email address is taken so that it is
 	// impossible to enumerate registered accounts.
-	// TODO - When we have confirmation emails being sent, we should say that
-	// an email has been sent in both the case that the email is taken and
-	// in the case that it is not.
 	if archiver.Email() != "" {
 		res.Write([]byte(fmt.Sprintf("Successfully registered %s", email)))
 		return

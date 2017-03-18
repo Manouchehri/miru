@@ -11,6 +11,7 @@ import (
 // Importance is used to rate the degree of change observed on a site.
 type Importance uint
 
+// Levels of website content change significances.
 const (
 	NoChange      Importance = 0 // The page hasn't changed.
 	MinorUpdate   Importance = 1 // A minor textual change occurred, such as a typo fix.
@@ -60,10 +61,6 @@ type encodableReport struct {
 }
 
 // NewReport is the constructor function used to produce a monitor's first report.
-// Arguments:
-// monitor: The monitor script that is being run.
-// Returns:
-// A new first Report with no significant data.
 func NewReport(monitor Monitor) Report {
 	return Report{
 		id:                 -1,
@@ -77,12 +74,6 @@ func NewReport(monitor Monitor) Report {
 }
 
 // FindLastReportForMonitor looks up the last Report output by a monitor script.
-// Arguments:
-// db: A database connection.
-// monitor: The monitor that is going to be run.
-// Returns:
-// A Report containing the monitor script's last output, if one can be found,
-// or else an error if something fails in the database.
 func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 	r := Report{}
 	stateData := ""
@@ -101,8 +92,6 @@ func FindLastReportForMonitor(db *sql.DB, monitor Monitor) (Report, error) {
 }
 
 // String converts the report to a JSON string.
-// Returns:
-// The report encoded to JSON in a string.
 func (r Report) String() string {
 	encodable := encodableReport{
 		Change:   r.changeSignificance,
@@ -119,60 +108,44 @@ func (r Report) String() string {
 }
 
 // ID is a getter function for the Report's unique identifier.
-// Returns:
-// The Report's unique id.
 func (r Report) ID() int {
 	return r.id
 }
 
 // Change is a getter for the Report's states significance of the change since its
 // last inspection.
-// Returns:
-// The level of importance of the change since the script was last run.
 func (r Report) Change() Importance {
 	return r.changeSignificance
 }
 
 // Message is a getter for the Report's message to the admins about the state of
 // the site that it is monitoring.
-// Returns:
-// A message to miru's administrators.
 func (r Report) Message() string {
 	return r.messageToAdmin
 }
 
 // Checksum is a getter for the Report's checksum of the site's data.
-// Returns:
-// The checksum of the monitored site's significant content.
 func (r Report) Checksum() string {
 	return r.checksum
 }
 
 // SetChange is a setter function that sets the recorded significance of a site's last change.
-// Arguments:
-// change: The signficance of the change seen.
 func (r *Report) SetChange(change Importance) {
 	r.changeSignificance = change
 }
 
 // SetMessage is a setter function that sets the message to an administrator in a report.
-// Arguments:
-// message: The message to set.
 func (r *Report) SetMessage(message string) {
 	r.messageToAdmin = message
 }
 
 // SetChecksum is a setter function that sets the checksum of the data inspected.
-// Arguments:
-// checksum: The new site data's checksum.
 func (r *Report) SetChecksum(checksum string) {
 	r.checksum = checksum
 }
 
 // SetState is a setter function for the report's state, which is data that it wants to communicate
 // back to itself in successive runs.
-// Arguments:
-// state: The new state data.
 func (r *Report) SetState(state map[string]interface{}) {
 	r.stateData = state
 }
@@ -180,10 +153,6 @@ func (r *Report) SetState(state map[string]interface{}) {
 // Save creates a new Report in the database for an admin to view later and to be
 // provided as input during the next invokation of the monitor script that
 // produced it.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error if the database insertion fails.
 func (r *Report) Save(db *sql.DB) error {
 	stateData, encodeErr := json.Marshal(r.stateData)
 	if encodeErr != nil {
@@ -199,19 +168,11 @@ func (r *Report) Save(db *sql.DB) error {
 }
 
 // Update always returns an error because we don't want to allow Reports to be changed.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error saying that Reports cannot be updated.
 func (r *Report) Update(db *sql.DB) error {
 	return errors.New("cannot change a report")
 }
 
 // Delete always returns an error because we don't want to allow Reports to be deleted.
-// Arguments:
-// db: A database connection.
-// Returns:
-// An error saying that Reports cannot be deleted.
 func (r *Report) Delete(db *sql.DB) error {
 	return errors.New("cannot delete a report")
 }

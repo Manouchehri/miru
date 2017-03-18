@@ -22,11 +22,6 @@ type CreateHandler struct {
 }
 
 // NewCreateHandler is the constructor function for a CreateHandler.
-// Arguments:
-// cfg: The application's global configuration.
-// db: A database connection.
-// Returns:
-// A new CreateHandler that can be bound to a router.
 func NewCreateHandler(cfg *config.Config, db *sql.DB) CreateHandler {
 	return CreateHandler{
 		cfg: cfg,
@@ -35,9 +30,6 @@ func NewCreateHandler(cfg *config.Config, db *sql.DB) CreateHandler {
 }
 
 // ServeHTTP handles a form upload containing a request to have a site monitored.
-// Arguments:
-// res: Provided by the net/http server, used to write the response.
-// req: Provided by the net/http server, contains information about the request.
 func (h CreateHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	// Check that the request is coming from an authenticated archiver.
 	cookie, err := req.Cookie(auth.SessionCookieName)
