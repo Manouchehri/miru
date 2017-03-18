@@ -13,7 +13,7 @@ const NavTemplate string = "nav.html"
 const passwordRules = `
 the submitted password and repeated password must match and contain
 at least one of each of the following: a lowercase letter, an uppercase
-letter, a symbol, and a number.`
+letter, a symbol, and a number and be at least 10 characters long.`
 
 // Common errors containing messages that are safe to show the user.
 var (
